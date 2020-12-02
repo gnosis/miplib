@@ -8,6 +8,31 @@ Currently it supports:
 
 The library requires at least one of these backends to be installed.
 
+# Example
+
+```c++
+using namespace miplib;
+
+Solver solver(Solver::Backend::Scip);
+solver.set_verbose(true);
+
+Var v1(solver, Var::Type::Binary, "v1");
+Var v2(solver, Var::Type::Binary, "v2");
+Var v3(solver, Var::Type::Continuous, "v3");
+
+solver.add(v1 == 1);
+solver.add(v2 <= v1 - 1);
+solver.add(v3 == v1 + v2);
+
+auto r = solver.solve();
+
+assert(r == Solver::Result::Optimal);
+
+std::cout << v1.value() << std::endl; // prints 1
+std::cout << v2.value() << std::endl; // prints 0
+std::cout << v3.value() << std::endl; // prints 1
+```
+
 # Building
 
 ## Configure build (only required to do once)
