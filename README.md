@@ -2,9 +2,9 @@ This repo provides a common C++ interface on top of popular MIP solvers (backend
 
 Currently it supports:
 
-* [Gurobi] (https://www.gurobi.com/)
-* [SCIP] (https://www.scipopt.org/)
-* [Lpsolve] (http://lpsolve.sourceforge.net/5.5/)
+* [Gurobi](https://www.gurobi.com/)
+* [SCIP](https://www.scipopt.org/)
+* [Lpsolve](http://lpsolve.sourceforge.net/5.5/)
 
 The library requires at least one of these backends to be installed.
 
