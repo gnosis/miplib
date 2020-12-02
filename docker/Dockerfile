@@ -34,3 +34,6 @@ RUN wget --no-check-certificate https://packages.gurobi.com/9.1/gurobi9.1.0_linu
 
 ENV GUROBI_DIR="/opt/gurobi910/linux64"
 
+# TODO: install this package in the beginning like the others
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git ca-certificates ssh
