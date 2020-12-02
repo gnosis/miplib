@@ -1,0 +1,18 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  ubuntu-build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: mvcorreia/miplib-backends:1.0.0
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.0.0
+    - name: Build project
+      uses: nicledomaS/cmake_build_action@v1
+      with:
+        cmake_args: -DGUROBI:PATH=$GUROBI_DIR
+        run_tests: ON
+        
