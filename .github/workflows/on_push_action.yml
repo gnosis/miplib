@@ -15,6 +15,5 @@ jobs:
       with:
         build-dir: ${{ runner.workspace }}/build
         build-type: Release
-        configure-options: -DGUROBI:PATH=$GUROBI_DIR
         run-test: true
         

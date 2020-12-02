@@ -36,4 +36,4 @@ ENV GUROBI_DIR="/opt/gurobi910/linux64"
 
 # TODO: install this package in the beginning like the others
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git ca-certificates ssh
+  && apt-get install -y --no-install-recommends git ca-certificates ssh liblpsolve55-dev
