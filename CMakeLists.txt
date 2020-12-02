@@ -8,13 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include("cmake/HunterGate.cmake")
 include("cmake/util.cmake")
-
-HunterGate(
-  URL "https://github.com/cpp-pm/hunter/archive/v0.23.284.tar.gz"
-  SHA1 "b15e14b31d96ee2e2be32187d21e2390d0b974c8"
-)
 
 project(miplib)
 

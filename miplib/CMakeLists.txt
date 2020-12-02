@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.9.2)
 
 include(FetchContent)
 
-# Define the name of our project
-#project(miplib)
-
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY git@github.com:fmtlib/fmt.git

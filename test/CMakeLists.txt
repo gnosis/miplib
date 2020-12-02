@@ -12,8 +12,15 @@ set(COMPILE_FLAGS -Werror -Wall -Wextra)
 
 target_compile_options(unit_test PRIVATE ${COMPILE_FLAGS})
 
-hunter_add_package(Catch)
-find_package(Catch2 CONFIG REQUIRED)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY git@github.com:catchorg/Catch2.git
+  GIT_TAG        v2.13.3
+)
+FetchContent_MakeAvailable(Catch2)
 
 target_link_libraries(unit_test Catch2::Catch2)
 
