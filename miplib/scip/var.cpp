@@ -104,4 +104,36 @@ std::optional<std::string> ScipVar::name() const
   return name;
 }
 
+void ScipVar::set_name(std::string const& new_name)
+{
+  auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;  
+  SCIPchgVarName(p_env, p_var, new_name.c_str());
+}
+
+double ScipVar::lb() const
+{
+  if (type() == Var::Type::Binary)
+    return 0;
+  return SCIPvarGetLbLocal(p_var)	;
+}
+
+double ScipVar::ub() const
+{
+  if (type() == Var::Type::Binary)
+    return 1;
+  return SCIPvarGetUbLocal(p_var)	;
+}
+
+void ScipVar::set_lb(double new_lb)
+{
+  auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
+  SCIPchgVarLb(p_env, p_var, new_lb);
+}
+
+void ScipVar::set_ub(double new_ub)
+{
+  auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
+  SCIPchgVarUb(p_env, p_var, new_ub);
+}
+
 }  // namespace miplib

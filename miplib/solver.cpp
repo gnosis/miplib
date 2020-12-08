@@ -66,6 +66,20 @@ void Solver::add(Constr const& constr)
 
 void Solver::add(IndicatorConstr const& constr)
 {
+  if (
+    p_impl->m_indicator_constraint_policy == 
+      Solver::IndicatorConstraintPolicy::Reformulate or
+    (
+      !supports_indicator_constraints() and
+      p_impl->m_indicator_constraint_policy == 
+      Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported
+    )
+  )
+  {
+    for (auto const& c: constr.reformulation())
+      add(c);
+    return;
+  }
   p_impl->add(constr);
 }
 
@@ -111,4 +125,48 @@ bool Solver::supports_quadratic_objective() const
   return p_impl->supports_quadratic_objective();
 }
 
+double Solver::infinity() const
+{
+  return p_impl->infinity();
+}
+
+bool Solver::supports_backend(Backend const& backend)
+{
+  switch (backend)
+  {
+    case  Solver::Backend::Gurobi:
+      #ifdef WITH_GUROBI
+      return true;
+      #else
+      return false;
+      #endif
+    case  Solver::Backend::Scip:
+      #ifdef WITH_SCIP
+      return true;
+      #else
+      return false;
+      #endif
+    case  Solver::Backend::Lpsolve:
+      #ifdef WITH_LPSOLVE
+      return true;
+      #else
+      return false;
+      #endif
+    default:
+      return false;
+  }
+}
+
+void Solver::dump(std::string const& filename) const
+{
+  p_impl->dump(filename);
+}
+
+namespace detail {
+void ISolver::set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy)
+{
+  m_indicator_constraint_policy = policy;
+}
+
+}
 }  // namespace miplib

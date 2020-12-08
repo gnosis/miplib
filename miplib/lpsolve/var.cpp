@@ -18,7 +18,7 @@ LpsolveVar::LpsolveVar(
   // create var
   bool success = add_columnex(p_lprec, 0, NULL, NULL);
   if (!success)
-    throw std::logic_error("lpsolve error creating variable.");
+    throw std::logic_error("Lpsolve error creating variable.");
 
   // arrays are 1 based (!)
   m_orig_col_idx = get_Ncolumns(p_lprec);
@@ -31,7 +31,7 @@ LpsolveVar::LpsolveVar(
     set_int(p_lprec, m_orig_col_idx, 1);
   else
   if (type != Var::Type::Continuous)
-    throw std::logic_error("lpsolve does not support this variable type");
+    throw std::logic_error("Lpsolve does not support this variable type");
 
   // set bounds
   if (type != Var::Type::Binary)
@@ -44,7 +44,7 @@ LpsolveVar::LpsolveVar(
       ub ? ub.value() : inf
     );
     if (!success)
-      throw std::logic_error("lpsolve error setting variable bounds.");
+      throw std::logic_error("Lpsolve error setting variable bounds.");
   }
 
   // set name
@@ -53,7 +53,7 @@ LpsolveVar::LpsolveVar(
     char* cname = const_cast<char*>(name->c_str());
     success = set_col_name(p_lprec, m_orig_col_idx, cname);
     if (!success)
-      throw std::logic_error("lpsolve error naming variable.");
+      throw std::logic_error("Lpsolve error naming variable.");
   }
 }
 
@@ -97,6 +97,54 @@ std::optional<std::string> LpsolveVar::name() const
 {
   auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
   return std::string(get_origcol_name(p_lprec, m_orig_col_idx));
+}
+
+void LpsolveVar::set_name(std::string const& new_name)
+{
+  auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
+  int col_idx = cur_col_idx();
+  if (!set_col_name(p_lprec, col_idx, const_cast<char*>(new_name.c_str())))
+    throw std::logic_error("Lpsolve error setting variable name.");
+}
+
+double LpsolveVar::lb() const
+{
+  if (type() == Var::Type::Binary)
+    return 0;
+
+  auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
+  int col_idx = cur_col_idx();
+  return get_lowbo(p_lprec, col_idx);
+}
+
+double LpsolveVar::ub() const
+{
+  if (type() == Var::Type::Binary)
+    return 1;
+
+  auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
+  int col_idx = cur_col_idx();
+  return get_upbo(p_lprec, col_idx);
+}
+
+void LpsolveVar::set_lb(double new_lb)
+{
+  auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
+  int col_idx = cur_col_idx();
+  if (!set_lowbo(p_lprec, col_idx, new_lb))
+    throw std::logic_error(
+      "Lpsolve error setting lower bound of variable."
+    );  
+}
+
+void LpsolveVar::set_ub(double new_ub)
+{
+  auto p_lprec = static_cast<LpsolveSolver const&>(*m_solver.p_impl).p_lprec;
+  int col_idx = cur_col_idx();
+  if (!set_upbo(p_lprec, col_idx, new_ub))
+    throw std::logic_error(
+      "Lpsolve error setting upper bound of variable."
+    );  
 }
 
 }  // namespace miplib

@@ -21,11 +21,15 @@ struct LpsolveVar : detail::IVar
   Var::Type type() const;
 
   std::optional<std::string> name() const;
+  void set_name(std::string const& new_name);
 
-  Solver const& solver() const
-  {
-    return m_solver;
-  }
+  Solver const& solver() const  { return m_solver; }
+
+  double lb() const;
+  double ub() const;
+  
+  void set_lb(double new_lb);
+  void set_ub(double new_ub);
 
   int cur_col_idx() const;
 

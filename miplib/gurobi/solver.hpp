@@ -49,6 +49,10 @@ struct GurobiSolver : detail::ISolver
   bool supports_quadratic_constraints() const { return true; }
   bool supports_quadratic_objective() const { return true; }
 
+  double infinity() const;
+
+  void dump(std::string const& filename) const;
+
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;

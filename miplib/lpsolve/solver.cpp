@@ -39,12 +39,12 @@ std::shared_ptr<detail::IConstr> LpsolveSolver::create_constr(
 }
 
 std::shared_ptr<detail::IIndicatorConstr> LpsolveSolver::create_indicator_constr(
-  Constr const&,
-  Constr const&,
-  std::optional<std::string> const&
+  Constr const& implicant,
+  Constr const& implicand,
+  std::optional<std::string> const& name
 )
 {
-  throw std::logic_error("Lpsolve does not support indicator constraints.");
+  return detail::create_reformulatable_indicator_constr(implicant, implicand, name);
 }
 
 std::vector<int> LpsolveSolver::get_col_idxs(std::vector<Var> const& vars)
@@ -188,5 +188,26 @@ void LpsolveSolver::set_verbose(bool value)
   else
     ::set_verbose(p_lprec, 1);
 }
+
+
+double LpsolveSolver::infinity() const
+{
+  return get_infinite(p_lprec);
+}
+
+void LpsolveSolver::dump(std::string const& filename) const
+{
+  std::string ext = filename.substr(filename.size()-3);
+  if (ext == "lp" or ext == "LP")
+    write_lp(p_lprec, const_cast<char*>(filename.c_str()));
+  else
+  if (ext == "mps" or ext == "MPS")
+    write_mps(p_lprec, const_cast<char*>(filename.c_str()));
+  else
+    throw std::logic_error(
+      fmt::format("Dumping lpsolve models to {} is not is not supported.", ext)
+    );
+}
+
 
 }  // namespace miplib

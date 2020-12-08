@@ -332,6 +332,16 @@ Solver::Result GurobiSolver::solve()
   }
 }
 
+double GurobiSolver::infinity() const
+{
+  return GRB_INFINITY;
+}
+
+void GurobiSolver::dump(std::string const& filename) const
+{
+  model.write(filename);
+}
+
 }  // namespace miplib
 
 #pragma GCC diagnostic pop

@@ -46,6 +46,10 @@ struct LpsolveSolver : detail::ISolver
   bool supports_quadratic_constraints() const { return false; }
   bool supports_quadratic_objective() const { return false; }
 
+  double infinity() const;
+
+  void dump(std::string const& filename) const;
+
   lprec* p_lprec;
   std::vector<double> m_last_solution;
 };

@@ -17,6 +17,7 @@ struct Solver
 {
   enum class Backend { Gurobi, Scip, Lpsolve, Any };
   enum class NonConvexPolicy { Error, Linearize, Branch };
+  enum class IndicatorConstraintPolicy { PassThrough, Reformulate, ReformulateIfUnsupported };
   enum class Sense { Maximize, Minimize };
   enum class Result {
     Optimal,
@@ -39,6 +40,7 @@ struct Solver
   void add(IndicatorConstr const& constr);
 
   void set_non_convex_policy(NonConvexPolicy policy);
+  void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
 
   Result solve();
 
@@ -52,7 +54,11 @@ struct Solver
   bool supports_quadratic_constraints() const;
   bool supports_quadratic_objective() const;
 
-  static constexpr bool supports_backend(Backend const&);
+  static bool supports_backend(Backend const&);
+
+  double infinity() const;
+
+  void dump(std::string const& filename) const;
 
   private:
   std::shared_ptr<detail::ISolver> p_impl;
@@ -97,40 +103,22 @@ struct ISolver
   virtual void add(IndicatorConstr const& constr) = 0;
   virtual Solver::Result solve() = 0;
   virtual void set_non_convex_policy(Solver::NonConvexPolicy policy) = 0;
+  virtual void set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy);
+
   virtual void set_verbose(bool value) = 0;
 
   virtual bool supports_indicator_constraints() const = 0;
   virtual bool supports_quadratic_constraints() const = 0;
   virtual bool supports_quadratic_objective() const = 0;
+
+  virtual double infinity() const = 0;
+
+  virtual void dump(std::string const& filename) const = 0;
+
+  Solver::IndicatorConstraintPolicy m_indicator_constraint_policy = 
+    Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported;
 };
 
 }  // namespace detail
-
-constexpr bool Solver::supports_backend(Backend const& backend)
-{
-  switch (backend)
-  {
-    case  Solver::Backend::Gurobi:
-      #ifdef WITH_GUROBI
-      return true;
-      #else
-      return false;
-      #endif
-    case  Solver::Backend::Scip:
-      #ifdef WITH_SCIP
-      return true;
-      #else
-      return false;
-      #endif
-    case  Solver::Backend::Lpsolve:
-      #ifdef WITH_LPSOLVE
-      return true;
-      #else
-      return false;
-      #endif
-    default:
-      return false;
-  }
-}
 
 }  // namespace miplib

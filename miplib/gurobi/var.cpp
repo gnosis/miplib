@@ -45,4 +45,38 @@ std::optional<std::string> GurobiVar::name() const
   return n;
 }
 
+void GurobiVar::set_name(std::string const& new_name)
+{
+  m_var.set(GRB_StringAttr_VarName, new_name);
+  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+}
+
+double GurobiVar::lb() const
+{
+  if (type() == Var::Type::Binary)
+    return 0;
+  update_solver_if_pending();
+  return m_var.get(GRB_DoubleAttr_LB);
+}
+
+double GurobiVar::ub() const
+{
+  if (type() == Var::Type::Binary)
+    return 1;
+  update_solver_if_pending();
+  return m_var.get(GRB_DoubleAttr_UB);
+}
+
+void GurobiVar::set_lb(double new_lb)
+{
+  m_var.set(GRB_DoubleAttr_LB, new_lb);
+  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+}
+
+void GurobiVar::set_ub(double new_ub)
+{
+  m_var.set(GRB_DoubleAttr_UB, new_ub);
+  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+}
+
 }  // namespace miplib

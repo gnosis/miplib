@@ -46,6 +46,10 @@ struct ScipSolver : detail::ISolver
   bool supports_quadratic_constraints() const { return true; }
   bool supports_quadratic_objective() const { return true; }
 
+  double infinity() const;
+
+  void dump(std::string const& filename) const;
+  
   SCIP* p_env;
   SCIP_SOL* p_sol;
   Var* p_aux_obj_var;

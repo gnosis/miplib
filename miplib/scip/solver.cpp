@@ -362,4 +362,14 @@ void ScipSolver::set_verbose(bool value)
   SCIPmessagehdlrSetQuiet(SCIPgetMessagehdlr(p_env), !value);
 }
 
+double ScipSolver::infinity() const
+{
+  return SCIPinfinity(p_env);
+}
+
+void ScipSolver::dump(std::string const& filename) const
+{
+  SCIP_CALL_EXC(SCIPwriteOrigProblem(p_env, filename.c_str(), NULL, false));	
+}
+
 }  // namespace miplib

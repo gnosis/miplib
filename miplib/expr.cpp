@@ -1,5 +1,6 @@
 
 #include "expr.hpp"
+#include "solver.hpp"
 
 #include <fmt/ostream.h>
 
@@ -475,5 +476,125 @@ Expr Expr::operator/(Expr const& e) const
   }
   return (*this) / e.constant();
 }
+
+// computes the lower bound of the product of two intervals using interval arithmetic
+// is_same should be true if the two intervals are the domain of the same variable
+// (in which case the lb can be tightened)
+static double interval_prod_lb(
+  double lb1, double ub1, double lb2, double ub2, bool is_same
+)
+{
+  // P * P
+  if (lb1 >= 0 and lb2 >= 0)
+    return lb1 * lb2;
+  else
+  // N * N
+  if (ub1 <= 0 and ub2 <= 0)
+    return ub1 * ub2;
+  else
+  if (is_same)
+    return 0;
+  else
+  {
+    return std::min(lb1 * ub2, ub1 * lb2);
+  }
+}
+
+
+// computes the upper bound of the product of two intervals using interval arithmetic
+static double interval_prod_ub(
+  double lb1, double ub1, double lb2, double ub2
+)
+{
+  // P * P
+  if (lb1 >= 0 and lb2 >= 0)
+    return ub1 * ub2;
+  else
+  // N * N
+  if (ub1 <= 0 and ub2 <= 0)
+    return lb1 * lb2;
+  else
+    return std::max(lb1 * lb2, ub1 * ub2);
+}
+
+
+double Expr::lb() const
+{
+  double infinity = solver().infinity();
+
+  double r = constant();
+
+  // linear part
+  auto const lv = linear_vars();
+  auto const lc = linear_coeffs();
+  for (std::size_t i = 0; i < lc.size(); ++i)
+    if (lc[i] > 0)
+    {
+      if (lv[i].lb() == -infinity)
+        return -infinity;
+      else
+        r += lc[i] * lv[i].lb();
+    }
+    else
+    if (lc[i] < 0)
+    {
+      if (lv[i].ub() == infinity)
+        return -infinity;
+      else
+        r += lc[i] * lv[i].ub();
+    }
+
+  // quadratic part
+  auto const qv1 = quad_vars_1();
+  auto const qv2 = quad_vars_2();
+  auto const qc = quad_coeffs();
+  for (std::size_t i = 0; i < qc.size(); ++i)
+    if (qc[i] > 0)
+    {
+      double lb = interval_prod_lb(
+        qv1[i].lb(), qv1[i].ub(), qv2[i].lb(), qv2[i].ub(),
+        qv1[i].is_same(qv2[i])
+      );      
+      if (lb <= -infinity)
+        return -infinity;
+      r += qc[i] * lb;
+    }
+    else
+    if (qc[i] < 0)
+    {
+      double ub = interval_prod_ub(
+        qv1[i].lb(), qv1[i].ub(), qv2[i].lb(), qv2[i].ub()
+      );      
+      if (ub >= infinity)
+        return -infinity;
+      r += qc[i] * ub;
+    }
+
+  return r;
+}
+
+double Expr::ub() const
+{
+  return -(-(*this)).lb();
+}
+
+std::vector<Var> Expr::vars() const
+{
+  std::set<Var> r;
+  for (auto const& [v, c]: p_impl->m_linear)
+    r.insert(v);
+  for (auto const& [vv, c]: p_impl->m_quad)
+  {
+    r.insert(vv.first);
+    r.insert(vv.second);
+  }
+  return std::vector(r.begin(), r.end());
+}
+
+std::size_t Expr::arity() const
+{
+  return vars().size();
+}
+
 
 }  // namespace miplib

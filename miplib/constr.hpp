@@ -29,6 +29,9 @@ struct Constr
   Type type() const;
   std::optional<std::string> const& name() const;
 
+  bool is_reifiable() const;
+  Expr reified() const;
+
   private:
   std::shared_ptr<detail::IConstr> p_impl;
   friend std::ostream& operator<<(std::ostream& os, Constr const& c);
@@ -61,6 +64,9 @@ struct IndicatorConstr
   Constr const& implicant() const;
   Constr const& implicand() const;
   std::optional<std::string> const& name() const;
+  
+  bool has_reformulation() const;
+  std::vector<Constr> reformulation() const;
 
   private:
   std::shared_ptr<detail::IIndicatorConstr> p_impl;
@@ -110,6 +116,11 @@ struct IIndicatorConstr
   Constr m_implicand;
   std::optional<std::string> m_name;
 };
+std::shared_ptr<detail::IIndicatorConstr> create_reformulatable_indicator_constr(
+  Constr const& implicant,
+  Constr const& implicand,
+  std::optional<std::string> const& name
+);
 
 }  // namespace detail
 

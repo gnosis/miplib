@@ -8,6 +8,13 @@ Currently it supports:
 
 The library requires at least one of these backends to be installed.
 
+# Features
+
+* Binary, Integer, and Continuous variables (to do: SOS).
+* Linear constraints and objectives. 
+* Quadratic constraints and objectives when supported by backend.
+* Indicator constraints with automatic reformulation if not supported by backend.
+
 # Example
 
 ```c++

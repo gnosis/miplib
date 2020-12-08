@@ -167,6 +167,12 @@ struct Expr
 
   Expr operator/(Expr const& e) const;
 
+  double lb() const;
+  double ub() const;
+  
+  std::vector<Var> vars() const;
+  std::size_t arity() const;
+
   private:
   std::shared_ptr<detail::ExprImpl> p_impl;
   friend std::ostream& operator<<(std::ostream& os, Expr const& e);
@@ -210,6 +216,11 @@ inline Expr operator-(Var const& v, double c)
 inline Expr operator-(double c, Var const& v)
 {
   return c + (-v);
+}
+
+inline Expr operator-(double c, Expr const& e)
+{
+  return c + (-e);
 }
 
 inline Expr operator-(Var const& v1, Var const& v2)

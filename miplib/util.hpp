@@ -32,14 +32,32 @@ struct Vars
     return v;
   }
 
-template<class Container>
-auto as_unordered_map_values(Container const& keys) const ->
-  std::unordered_map<typename std::decay<decltype(*std::begin(keys))>::type, Var> 
+  template<class Container>
+  auto as_unordered_map_values(Container const& keys) const ->
+    std::unordered_map<typename std::decay<decltype(*std::begin(keys))>::type, Var> 
   {
     typedef typename std::decay<decltype(*std::begin(keys))>::type value_type;
     std::unordered_map<value_type, Var> m;
     std::for_each(std::begin(keys), std::end(keys), [&](auto const& k) {
       m.insert({k, std::make_from_tuple<Var>(m_var_args)});
+    });
+    return m;    
+  }
+
+  // same as previous but with additional function to generate variable names
+  template<class Container>
+  auto as_unordered_map_values(
+    Container const& keys,
+    std::function<std::string(typename Container::value_type const&)> const& naming_fn
+  ) const -> std::unordered_map<typename std::decay<decltype(*std::begin(keys))>::type, Var> 
+  {
+    typedef typename std::decay<decltype(*std::begin(keys))>::type value_type;
+    std::unordered_map<value_type, Var> m;
+    std::for_each(std::begin(keys), std::end(keys), [&](auto const& k) {
+      auto var = std::make_from_tuple<Var>(m_var_args);
+      auto name = naming_fn(k);
+      var.set_name(name);
+      m.insert({k, var});
     });
     return m;    
   }
