@@ -124,7 +124,7 @@ void LpsolveSolver::add(IndicatorConstr const&)
 }
 
 
-Solver::Result LpsolveSolver::solve()
+std::pair<Solver::Result, bool> LpsolveSolver::solve()
 {
   // presolve
   int PRESOLVE_TRY_ALL_TRICKS = std::numeric_limits<int>::max();
@@ -142,37 +142,37 @@ Solver::Result LpsolveSolver::solve()
       m_last_solution.push_back(get_var_primalresult(p_lprec, nr_orig_rows + i));
   };
 
-  // not sure yet if this can be called for any return status
-  store_solution();
+  if (status == 0 or status == 9 or status == 1)
+    store_solution();
 
   switch (status)
   {
     case 0: // optimal
     case 9: // optimal (solved by presolve)
-      return Solver::Result::Optimal;
+      return {Solver::Result::Optimal, true};
 
     case 1: // Suboptimal
-      return Solver::Result::Interrupted;
+      return {Solver::Result::Interrupted, true};
 
     case 2:
-      return Solver::Result::Infeasible;
+      return {Solver::Result::Infeasible, false};
 
     case 3:
-      return Solver::Result::Unbounded;
+      return {Solver::Result::Unbounded, false};
 
 
     case -2: // Out of memory
     case 6: // User aborted
     case 7: // Timeout
-      return Solver::Result::Interrupted;
+      return {Solver::Result::Interrupted, false};
 
     case 4: // Degenerate
     case 5: // Numerical failure
     case 25: // Accuracy error
-      return Solver::Result::Error;
+      return {Solver::Result::Error, false};
 
     default:
-      return Solver::Result::Other;
+      return {Solver::Result::Other, false};
   }
 }
 

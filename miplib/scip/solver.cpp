@@ -309,9 +309,13 @@ void ScipSolver::add(IndicatorConstr const& constr)
   }
 }
 
-Solver::Result ScipSolver::solve()
+std::pair<Solver::Result, bool> ScipSolver::solve()
 {
+  auto nr_sols_before = SCIPgetNRuns(p_env) == 0 ? 0 : SCIPgetNBestSolsFound(p_env);
+
   SCIP_CALL_EXC(SCIPsolve(p_env));
+
+  bool has_solution = SCIPgetNBestSolsFound(p_env) > nr_sols_before;
 
   // This will be 0 in case there is no solution.
   auto sol = SCIPgetBestSol(p_env);
@@ -321,16 +325,16 @@ Solver::Result ScipSolver::solve()
   switch (status)
   {
     case SCIP_STATUS_OPTIMAL:
-      return Solver::Result::Optimal;
+      return {Solver::Result::Optimal, true};
 
     case SCIP_STATUS_INFEASIBLE:
-      return Solver::Result::Infeasible;
+      return {Solver::Result::Infeasible, false};
 
     case SCIP_STATUS_INFORUNBD:
-      return Solver::Result::InfeasibleOrUnbounded;
+      return {Solver::Result::InfeasibleOrUnbounded, false};
 
     case SCIP_STATUS_UNBOUNDED:
-      return Solver::Result::Unbounded;
+      return {Solver::Result::Unbounded, false};
 
     case SCIP_STATUS_NODELIMIT:
     case SCIP_STATUS_TOTALNODELIMIT:
@@ -342,13 +346,13 @@ Solver::Result ScipSolver::solve()
     case SCIP_STATUS_GAPLIMIT:
     case SCIP_STATUS_USERINTERRUPT:
     case SCIP_STATUS_RESTARTLIMIT:
-      return Solver::Result::Interrupted;
+      return {Solver::Result::Interrupted, has_solution};
 
     case SCIP_STATUS_TERMINATE:
-      return Solver::Result::Error;
+      return {Solver::Result::Error, has_solution};
 
     default:
-      return Solver::Result::Other;
+      return {Solver::Result::Other, has_solution};
   }
 }
 

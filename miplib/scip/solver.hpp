@@ -34,7 +34,7 @@ struct ScipSolver : detail::ISolver
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
 
-  Solver::Result solve();
+  std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
 
@@ -49,7 +49,7 @@ struct ScipSolver : detail::ISolver
   double infinity() const;
 
   void dump(std::string const& filename) const;
-  
+
   SCIP* p_env;
   SCIP_SOL* p_sol;
   Var* p_aux_obj_var;

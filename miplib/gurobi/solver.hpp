@@ -33,7 +33,7 @@ struct GurobiSolver : detail::ISolver
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
 
-  Solver::Result solve();
+  std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
 

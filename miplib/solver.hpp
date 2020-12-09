@@ -42,11 +42,12 @@ struct Solver
   void set_non_convex_policy(NonConvexPolicy policy);
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
 
-  Result solve();
+  // returns Result and if there is a solution.
+  std::pair<Result, bool> solve();
 
   // shortcut for set_objective and solve;
-  Result maximize(Expr const& e);
-  Result minimize(Expr const& e);
+  std::pair<Result, bool> maximize(Expr const& e);
+  std::pair<Result, bool> minimize(Expr const& e);
 
   void set_verbose(bool value);
 
@@ -101,7 +102,7 @@ struct ISolver
   virtual void set_objective(Solver::Sense const& sense, Expr const& e) = 0;
   virtual void add(Constr const& constr) = 0;
   virtual void add(IndicatorConstr const& constr) = 0;
-  virtual Solver::Result solve() = 0;
+  virtual std::pair<Solver::Result, bool> solve() = 0;
   virtual void set_non_convex_policy(Solver::NonConvexPolicy policy) = 0;
   virtual void set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy);
 

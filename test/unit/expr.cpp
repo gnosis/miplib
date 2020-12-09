@@ -139,9 +139,10 @@ TEMPLATE_TEST_CASE_SIG(
   solver.add(v2 <= v1 - 1);
   solver.add(v3 == v1 + v2);
 
-  auto r = solver.solve();
+  auto [r, has_solution] = solver.solve();
 
   REQUIRE(r == Solver::Result::Optimal);
+  REQUIRE(has_solution);
 
   REQUIRE(v1.value() == 1);
   REQUIRE(v2.value() == 0);
@@ -171,9 +172,10 @@ TEMPLATE_TEST_CASE_SIG(
   solver.add(v1 >= 0.707);
   solver.add(v2 >= 0.707);
 
-  auto r = solver.solve();
+  auto [r, has_solution] = solver.solve();
 
   REQUIRE(r == Solver::Result::Optimal);
+  REQUIRE(has_solution);
 }
 
 TEMPLATE_TEST_CASE_SIG(
@@ -200,9 +202,10 @@ TEMPLATE_TEST_CASE_SIG(
   solver.add((v1 == 0) >> (v2 == v3 - 1));
   solver.add(v2 <= v3 - 1);
 
-  auto r = solver.solve();
+  auto [r, has_solution] = solver.solve();
 
   REQUIRE(r == Solver::Result::Optimal);
+  REQUIRE(has_solution);
 
   REQUIRE(v1.value() == 0);
   REQUIRE(v2.value() == 0);
@@ -232,15 +235,17 @@ TEMPLATE_TEST_CASE_SIG(
 
   SECTION("Test maximize variable")
   {
-    auto r = solver.maximize(v1);
+    auto [r, has_solution] = solver.maximize(v1);
     REQUIRE(r == Solver::Result::Optimal);
+    REQUIRE(has_solution);
     REQUIRE(v1.value() == 3);
   }
 
   SECTION("Test maximize linear expression")
   {
-    auto r = solver.maximize(-v1 + v2);
+    auto [r, has_solution] = solver.maximize(-v1 + v2);
     REQUIRE(r == Solver::Result::Optimal);
+    REQUIRE(has_solution);
     REQUIRE(v1.value() == 1);
     REQUIRE(v2.value() == 3);
   }
@@ -248,16 +253,18 @@ TEMPLATE_TEST_CASE_SIG(
   if (solver.supports_quadratic_objective())
     SECTION("Test maximize non-linear expression")
     {
-      auto r = solver.maximize(v1 * v2);
+      auto [r, has_solution] = solver.maximize(v1 * v2);
       REQUIRE(r == Solver::Result::Optimal);
+      REQUIRE(has_solution);
       REQUIRE(v1.value() == 3);
       REQUIRE(v2.value() == 3);
     }
 
   SECTION("Test minimize variable")
   {
-    auto r = solver.minimize(v1);
+    auto [r, has_solution] = solver.minimize(v1);
     REQUIRE(r == Solver::Result::Optimal);
+    REQUIRE(has_solution);
     REQUIRE(v1.value() == 1);
   }
 }

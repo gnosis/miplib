@@ -293,9 +293,11 @@ void GurobiSolver::set_verbose(bool value)
 }
 
 
-Solver::Result GurobiSolver::solve()
+std::pair<Solver::Result, bool> GurobiSolver::solve()
 {
+  auto nr_sols_before = model.get(GRB_IntAttr_SolCount);
   model.optimize();
+  bool has_solution = model.get(GRB_IntAttr_SolCount) > nr_sols_before;
 
   pending_update = false;
 
@@ -303,16 +305,16 @@ Solver::Result GurobiSolver::solve()
   switch (r)
   {
     case GRB_OPTIMAL:
-      return Solver::Result::Optimal;
+      return {Solver::Result::Optimal, true};
 
     case GRB_INFEASIBLE:
-      return Solver::Result::Infeasible;
+      return {Solver::Result::Infeasible, false};
 
     case GRB_INF_OR_UNBD:
-      return Solver::Result::InfeasibleOrUnbounded;
+      return {Solver::Result::InfeasibleOrUnbounded, false};
 
     case GRB_UNBOUNDED:
-      return Solver::Result::Unbounded;
+      return {Solver::Result::Unbounded, false};
 
     case GRB_CUTOFF:
     case GRB_ITERATION_LIMIT:
@@ -321,14 +323,14 @@ Solver::Result GurobiSolver::solve()
     case GRB_SOLUTION_LIMIT:
     case GRB_INTERRUPTED:
     case GRB_USER_OBJ_LIMIT:
-      return Solver::Result::Interrupted;
+    case GRB_SUBOPTIMAL:
+      return {Solver::Result::Interrupted, has_solution};
 
     case GRB_NUMERIC:
-    case GRB_SUBOPTIMAL:
-      return Solver::Result::Error;
+      return {Solver::Result::Error, has_solution};
 
     default:
-      return Solver::Result::Other;
+      return {Solver::Result::Other, has_solution};
   }
 }
 

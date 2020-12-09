@@ -83,18 +83,18 @@ void Solver::add(IndicatorConstr const& constr)
   p_impl->add(constr);
 }
 
-Solver::Result Solver::solve()
+std::pair<Solver::Result, bool> Solver::solve()
 {
   return p_impl->solve();
 }
 
-Solver::Result Solver::maximize(Expr const& e)
+std::pair<Solver::Result, bool> Solver::maximize(Expr const& e)
 {
   set_objective(Sense::Maximize, e);
   return solve();
 }
 
-Solver::Result Solver::minimize(Expr const& e)
+std::pair<Solver::Result, bool> Solver::minimize(Expr const& e)
 {
   set_objective(Sense::Minimize, e);
   return solve();
