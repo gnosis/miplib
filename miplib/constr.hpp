@@ -32,7 +32,10 @@ struct Constr
   bool is_reifiable() const;
   Expr reified() const;
 
-  Constr scale() const;
+  Constr scale(
+    double skip_lb = 0,
+    double skip_ub = std::numeric_limits<double>::infinity()
+  ) const;
   
   private:
   std::shared_ptr<detail::IConstr> p_impl;

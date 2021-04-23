@@ -1,5 +1,6 @@
 #include "constr.hpp"
 #include "solver.hpp"
+#include <miplib/util/scale.hpp>
 
 namespace miplib {
 
@@ -113,6 +114,11 @@ Constr operator==(Expr const& e1, Expr const& e2)
     throw std::logic_error("Attempt to create a constraint from constant expressions");
   }
   return Constr(*p_solver, Constr::Equal, e1 - e2);
+}
+
+Constr Constr::scale(double skip_lb, double skip_ub) const
+{
+  return detail::scale_gm(*this, skip_lb, skip_ub);
 }
 
 /**

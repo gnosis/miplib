@@ -36,11 +36,12 @@ struct Solver
   }
 
   void set_objective(Sense const& sense, Expr const& e);
-  void add(Constr const& constr);
+  void add(Constr const& constr, bool scale = false);
   void add(IndicatorConstr const& constr);
 
   void set_non_convex_policy(NonConvexPolicy policy);
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
+  void set_constraint_autoscale(bool autoscale);
 
   // returns Result and if there is a solution.
   std::pair<Result, bool> solve();
@@ -64,6 +65,7 @@ struct Solver
   private:
   std::shared_ptr<detail::ISolver> p_impl;
   const Backend m_backend;
+  bool m_constraint_autoscale;
   friend struct Var;
   friend struct Constr;
   friend struct IndicatorConstr;

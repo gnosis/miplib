@@ -14,7 +14,7 @@
 
 namespace miplib {
 
-Solver::Solver(Backend backend): m_backend(backend)
+Solver::Solver(Backend backend): m_backend(backend), m_constraint_autoscale(false)
 {
   if (backend == Solver::Backend::Gurobi)
   {
@@ -59,9 +59,12 @@ void Solver::set_objective(Sense const& sense, Expr const& e)
   p_impl->set_objective(sense, e);
 }
 
-void Solver::add(Constr const& constr)
+void Solver::add(Constr const& constr, bool scale)
 {
-  p_impl->add(constr);
+  if (scale or m_constraint_autoscale)
+    p_impl->add(constr.scale());
+  else
+    p_impl->add(constr);
 }
 
 void Solver::add(IndicatorConstr const& constr)
@@ -108,6 +111,11 @@ void Solver::set_non_convex_policy(NonConvexPolicy policy)
 void Solver::set_verbose(bool value)
 {
   p_impl->set_verbose(value);
+}
+
+void Solver::set_constraint_autoscale(bool autoscale)
+{
+  m_constraint_autoscale = autoscale;
 }
 
 bool Solver::supports_indicator_constraints() const
