@@ -413,6 +413,69 @@ std::vector<Var> Expr::quad_vars_2() const
   return r;
 }
 
+// Returns the lower and upper bounds of a term.
+static std::pair<double, double> linear_term_bounds(Var const& v, double coeff)
+{
+  auto const var_lb = v.lb();
+  auto const var_ub = v.ub();
+
+  double const inf = v.solver().infinity();
+
+  if (coeff > 0)
+    return std::make_pair(std::max(-inf, coeff * var_lb), std::min(inf, coeff * var_ub));
+  else
+  if (coeff < 0)
+    return std::make_pair(std::max(-inf, coeff * var_ub), std::min(inf, coeff * var_lb));
+  else
+    return std::make_pair(0, 0);
+}
+
+
+// Returns the lower and upper bounds of a linear expression.
+std::pair<double, double> Expr::bounds() const
+{
+  if (!is_linear()) 
+    throw std::logic_error(
+      fmt::format("Querying bounds of a nonlinear expression is not implemented yet: {}.", *this)
+    );
+
+  auto const lin_coeffs = linear_coeffs();
+  auto const lin_vars = linear_vars();
+
+  double lb = constant();
+  double ub = constant();
+
+  double const inf = solver().infinity();
+
+  for (std::size_t i = 0; i < lin_coeffs.size(); ++i)
+  {
+    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i]);
+    lb += term_lb;
+    ub += term_ub;
+  }
+  return std::make_pair(std::max(-inf, lb), std::min(inf, ub));
+}
+
+// Returns the maximum absolute value of the term with lowest maximum absolute value and
+// the maximum absolute value of the term with highest maximum absolute value.
+std::pair<double, double> Expr::numerical_range() const
+{
+  auto lin_coeffs = linear_coeffs();
+  auto lin_vars = linear_vars();
+
+  double lb = abs(constant());
+  double ub = abs(constant());
+
+  for (std::size_t i = 0; i < lin_coeffs.size(); ++i)
+  {
+    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i]);
+    double max_abs = std::max(abs(term_lb), abs(term_ub));
+    lb = std::min(lb, max_abs);
+    ub = std::max(ub, max_abs);
+  }
+  return std::make_pair(lb, ub);
+}
+
 Expr Expr::copy() const
 {
   Expr r;

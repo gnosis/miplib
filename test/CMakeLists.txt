@@ -12,15 +12,9 @@ set(COMPILE_FLAGS -Werror -Wall -Wextra)
 
 target_compile_options(unit_test PRIVATE ${COMPILE_FLAGS})
 
+include("../cmake/CPM.cmake")
 
-include(FetchContent)
-
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v2.13.3
-)
-FetchContent_MakeAvailable(Catch2)
+CPMAddPackage("https://github.com/catchorg/Catch2.git@2.13.3")
 
 target_link_libraries(unit_test Catch2::Catch2)
 

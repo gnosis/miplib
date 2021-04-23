@@ -8,7 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include("cmake/util.cmake")
+#include("cmake/util.cmake")
+include("cmake/CPM.cmake")
 
 project(miplib)
 

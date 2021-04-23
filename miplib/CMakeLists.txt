@@ -2,16 +2,13 @@ cmake_minimum_required(VERSION 3.9.2)
 
 project(miplib)
 
-include(FetchContent)
+include("../cmake/CPM.cmake")
 
-FetchContent_Declare(
-  fmt
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        7.1.3
-)
-FetchContent_MakeAvailable(fmt)
+CPMAddPackage("https://github.com/gabime/spdlog.git@1.8.5")
+CPMAddPackage("https://github.com/fmtlib/fmt.git#7.1.3")
 
 set(SOURCE_FILES 
+  util/scale.cpp
   expr.cpp
   var.cpp
   constr.cpp
@@ -37,6 +34,8 @@ find_library(GUROBI_CPP_LIBRARY
   NAMES gurobi_c++
   PATHS "${GUROBI}/lib"
 )
+
+set(LIBS fmt spdlog)
 
 if (GUROBI_INCLUDE_DIR AND GUROBI_C_LIBRARY AND GUROBI_CPP_LIBRARY)
 
@@ -70,7 +69,7 @@ if (SCIP_INCLUDE_DIR AND SCIP_C_LIBRARY)
 include_directories(${SCIP_INCLUDE_DIR})
 
 set(SOURCE_FILES ${SOURCE_FILES} scip/solver.cpp scip/var.cpp)
-set(LIBS ${LIBS} ${SCIP_C_LIBRARY} fmt)
+set(LIBS ${LIBS} ${SCIP_C_LIBRARY})
 add_definitions(-DWITH_SCIP)
 
 message("-- SCIP backend: enabled!")

@@ -32,6 +32,8 @@ struct Constr
   bool is_reifiable() const;
   Expr reified() const;
 
+  Constr scale() const;
+  
   private:
   std::shared_ptr<detail::IConstr> p_impl;
   friend std::ostream& operator<<(std::ostream& os, Constr const& c);

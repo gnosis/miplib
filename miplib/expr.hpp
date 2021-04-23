@@ -84,6 +84,9 @@ struct Expr
   // variables of quad part
   std::vector<Var> quad_vars_2() const;
 
+  std::pair<double, double> bounds() const;
+  std::pair<double, double> numerical_range() const;
+
   Solver const& solver() const
   {
     return p_impl->solver();
