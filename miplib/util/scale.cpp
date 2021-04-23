@@ -76,7 +76,7 @@ Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub)
     new_maxmaxabs = max(maxmaxabs / c, 1 / c)
   */
 
-  double c;
+  double c = 1;
   if (maxmaxabs <= 1)
     c = sqrt(minmaxabs);
   else
