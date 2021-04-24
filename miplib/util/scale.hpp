@@ -6,7 +6,7 @@
 namespace miplib {
 namespace detail {
 
-Constr scale_gm(Constr const& constr, double skip_lb = 0, double skip_ub = std::numeric_limits<double>::infinity());
+Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub);
 
 }
 }

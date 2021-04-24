@@ -37,7 +37,9 @@ struct Solver
 
   void set_objective(Sense const& sense, Expr const& e);
   void add(Constr const& constr, bool scale = false);
-  void add(IndicatorConstr const& constr);
+  // note: if scale=true then the constraint will be first
+  // reformulated to a linear expression and then scaled.
+  void add(IndicatorConstr const& constr, bool scale = false);
 
   void set_non_convex_policy(NonConvexPolicy policy);
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);

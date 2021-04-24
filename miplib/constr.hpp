@@ -8,6 +8,9 @@
 
 namespace miplib {
 
+static double constexpr MIN_MAX_ABS_SKIP_SCALE = 1e-4;
+static double constexpr MAX_MAX_ABS_SKIP_SCALE = 1e4;
+
 namespace detail {
 struct IConstr;
 struct IIndicatorConstr;
@@ -33,8 +36,8 @@ struct Constr
   Expr reified() const;
 
   Constr scale(
-    double skip_lb = 0,
-    double skip_ub = std::numeric_limits<double>::infinity()
+    double skip_lb = MIN_MAX_ABS_SKIP_SCALE,
+    double skip_ub = MAX_MAX_ABS_SKIP_SCALE
   ) const;
   
   private:
@@ -72,6 +75,12 @@ struct IndicatorConstr
   
   bool has_reformulation() const;
   std::vector<Constr> reformulation() const;
+
+  // implies has_reformulation.
+  std::vector<Constr> scale(
+    double skip_lb = MIN_MAX_ABS_SKIP_SCALE,
+    double skip_ub = MAX_MAX_ABS_SKIP_SCALE
+  ) const;
 
   private:
   std::shared_ptr<detail::IIndicatorConstr> p_impl;

@@ -62,6 +62,7 @@ struct Expr
   }
 
   bool must_be_binary() const;
+  bool must_be_integer() const;
 
   // constant term
   double constant() const

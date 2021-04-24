@@ -41,7 +41,7 @@ std::optional<std::string> const& Constr::name() const
 }
 
 // If the truth value of the constraint can be captured as
-// a linear expression.
+// a linear expression (without introducing extra variables).
 bool Constr::is_reifiable() const
 {
   auto const& e = expr();
@@ -274,5 +274,12 @@ std::vector<Constr> IndicatorConstr::reformulation() const
   return r;
 }
 
+std::vector<Constr> IndicatorConstr::scale(double skip_lb, double skip_ub) const
+{
+  std::vector<Constr> r;
+  for (auto const& ctr : reformulation())
+    r.push_back(ctr.scale(skip_lb, skip_ub));
+  return r;
+}
 
 }  // namespace miplib

@@ -347,6 +347,38 @@ bool Expr::must_be_binary() const
   }
 }
 
+static bool is_integer(double c) {
+  return int(c) == c;
+}
+
+bool Expr::must_be_integer() const
+{
+  if (!is_integer(constant()))
+    return false;
+
+  for (auto const& coeff: linear_coeffs())
+    if (!is_integer(coeff))
+      return false;
+
+  for (auto const& var: linear_vars())
+    if (var.type() != Var::Type::Binary and var.type() != Var::Type::Integer)
+      return false;
+
+  for (auto const& coeff: quad_coeffs())
+    if (!is_integer(coeff))
+      return false;
+
+  for (auto const& var: quad_vars_1())
+    if (var.type() != Var::Type::Binary and var.type() != Var::Type::Integer)
+      return false;
+
+  for (auto const& var: quad_vars_2())
+    if (var.type() != Var::Type::Binary and var.type() != Var::Type::Integer)
+      return false;
+
+  return true;
+}
+
 
 // coefficients of linear part
 std::vector<double> Expr::linear_coeffs() const
@@ -463,13 +495,14 @@ std::pair<double, double> Expr::numerical_range() const
   auto lin_coeffs = linear_coeffs();
   auto lin_vars = linear_vars();
 
-  double lb = abs(constant());
-  double ub = abs(constant());
+  double lb = std::abs(constant());
+  if (lb == 0) lb = std::numeric_limits<double>::infinity();
+  double ub = std::abs(constant());
 
   for (std::size_t i = 0; i < lin_coeffs.size(); ++i)
   {
     auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i]);
-    double max_abs = std::max(abs(term_lb), abs(term_ub));
+    double max_abs = std::max(std::abs(term_lb), std::abs(term_ub));
     lb = std::min(lb, max_abs);
     ub = std::max(ub, max_abs);
   }

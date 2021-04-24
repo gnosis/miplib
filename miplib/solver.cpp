@@ -67,7 +67,7 @@ void Solver::add(Constr const& constr, bool scale)
     p_impl->add(constr);
 }
 
-void Solver::add(IndicatorConstr const& constr)
+void Solver::add(IndicatorConstr const& constr, bool scale)
 {
   if (
     p_impl->m_indicator_constraint_policy == 
@@ -76,12 +76,12 @@ void Solver::add(IndicatorConstr const& constr)
       !supports_indicator_constraints() and
       p_impl->m_indicator_constraint_policy == 
       Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported
-    )
+    ) or
+    scale
   )
   {
     for (auto const& c: constr.reformulation())
-      add(c);
-    return;
+      add(c, scale);
   }
   p_impl->add(constr);
 }
