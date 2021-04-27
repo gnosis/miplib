@@ -86,6 +86,11 @@ void Solver::add(IndicatorConstr const& constr, bool scale)
   p_impl->add(constr);
 }
 
+void Solver::set_lazy_constr_handler(LazyConstrHandler const& constr_handler)
+{
+  p_impl->set_lazy_constr_handler(constr_handler);
+}
+
 std::pair<Solver::Result, bool> Solver::solve()
 {
   return p_impl->solve();

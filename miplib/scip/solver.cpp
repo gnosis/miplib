@@ -3,10 +3,12 @@
 
 #include <miplib/scip/var.hpp>
 #include <miplib/scip/constr.hpp>
+#include <miplib/lazy.hpp>
 
 #include <fmt/ostream.h>
 
 #include <scip/scipdefplugins.h>
+#include <objscip/objconshdlr.h>
 
 namespace miplib {
 
@@ -17,6 +19,7 @@ ScipSolver::ScipSolver(): p_env(nullptr), p_sol(nullptr), p_aux_obj_var(nullptr)
   SCIP_CALL_EXC(SCIPincludeDefaultPlugins(p_env));
 
   SCIP_CALL_EXC(SCIPcreateProbBasic(p_env, "unnamed"));
+  //SCIP_CALL_EXC(SCIPsetPresolving(p_env, SCIP_PARAMSETTING_OFF, true));
 }
 
 
@@ -374,6 +377,109 @@ double ScipSolver::infinity() const
 void ScipSolver::dump(std::string const& filename) const
 {
   SCIP_CALL_EXC(SCIPwriteOrigProblem(p_env, filename.c_str(), NULL, false));	
+}
+
+
+struct ScipCurrentStateHandle : ICurrentStateHandle
+{
+  ScipCurrentStateHandle(ScipSolver& solver, SCIP_SOL* ap_sol) : m_solver(solver), p_sol(ap_sol) {}
+  double value(Var const& var) const
+  { 
+    auto p_env = m_solver.p_env;
+    auto p_var = static_cast<ScipVar const&>(*var.p_impl).p_var;
+    return SCIPgetSolVal(p_env, p_sol, p_var);
+  }
+  void add_lazy(Constr const& constr)
+  {
+    m_solver.add(constr);
+  }
+  ScipSolver& m_solver;
+  SCIP_SOL* p_sol;
+};
+
+
+struct ScipConstraintHandler: scip::ObjConshdlr
+{
+  static std::size_t nr_instances;
+  std::string make_new_name()
+  {
+    return "ScipConstraintHandler_" + std::to_string(nr_instances++);
+  }
+
+  ScipConstraintHandler(ScipSolver& solver, LazyConstrHandler const& constr_hdlr) : 
+    scip::ObjConshdlr(
+      solver.p_env,
+      make_new_name().c_str(),// name
+      "",     // description
+      0,      // priority for separation
+      -1,     // priority for constraint enforcing. <0 means integral solutions only
+      -1,     // priority for checking feasibility. <0 means integral solutions only
+      -1,     // frequency for separating cuts; 0 = only at root node
+      0,     // frequency for propagating domains; 0 = only preprocessing propagation
+      0,      // frequency for using all instead of only the useful constraints in separation, propagation and enforcement; -1 = no eager evaluations, 0 = first only
+      -1,     // maximal number of presolving rounds the constraint handler participates in
+      false,   // should separation method be delayed, if other separators found cuts?
+      false,   // should propagation method be delayed, if other propagators found reductions?
+      false,   // should the constraint handler be skipped, if no constraints are available?
+      SCIP_PROPTIMING_AFTERLPNODE, // positions in the node solving loop where propagation method of constraint handlers should be executed
+      SCIP_PRESOLTIMING_MEDIUM     // timing mask of the constraint handler's presolving method
+    ),
+    m_solver(solver),
+    m_constr_hdlr(constr_hdlr) {
+  }
+
+  SCIP_DECL_CONSCHECK(scip_check)
+  {
+    ScipCurrentStateHandle handle(m_solver, sol);    
+    if (m_constr_hdlr.is_feasible(handle))
+      *result = SCIP_FEASIBLE;
+    else
+      *result = SCIP_INFEASIBLE;
+    return SCIP_OKAY;
+  }
+
+  SCIP_DECL_CONSTRANS(scip_trans)
+  {
+    // FIXME: not sure yet if this is needed for anything
+    return SCIP_OKAY;
+  }
+
+  SCIP_DECL_CONSENFOLP(scip_enfolp)
+  {
+    ScipCurrentStateHandle handle(m_solver, nullptr);
+    if (m_constr_hdlr.add(handle))
+      *result = SCIP_CONSADDED;
+    else
+      *result = SCIP_FEASIBLE;
+    return SCIP_OKAY;
+  }
+
+  SCIP_DECL_CONSENFOPS(scip_enfops)
+  {
+    // not sure about what to do here
+    assert(false);
+    return SCIP_OKAY;
+  }
+
+  SCIP_DECL_CONSLOCK(scip_lock)
+  {
+    for (auto const& v: m_constr_hdlr.depends())
+    {
+      auto p_var = static_cast<ScipVar const&>(*v.p_impl).p_var;
+      SCIP_CALL_EXC(SCIPaddVarLocks(scip, p_var, nlocksneg + nlockspos, nlocksneg + nlockspos));
+    }
+    return SCIP_OKAY;
+  }
+
+  ScipSolver& m_solver;
+  LazyConstrHandler m_constr_hdlr;
+};
+
+std::size_t ScipConstraintHandler::nr_instances = 0;
+
+void ScipSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
+{
+  SCIP_CALL_EXC(SCIPincludeObjConshdlr(p_env, new ScipConstraintHandler(*this, constr_hdlr), true));
 }
 
 }  // namespace miplib

@@ -5,6 +5,7 @@ project(test)
 
 add_executable(unit_test
   unit/expr.cpp
+  unit/solver.cpp
   unit/main.cpp
 )
 

@@ -4,6 +4,7 @@
 
 #include "var.hpp"
 #include "constr.hpp"
+#include "lazy.hpp"
 
 namespace miplib {
 
@@ -40,6 +41,7 @@ struct Solver
   // note: if scale=true then the constraint will be first
   // reformulated to a linear expression and then scaled.
   void add(IndicatorConstr const& constr, bool scale = false);
+  void set_lazy_constr_handler(LazyConstrHandler const& constr_handler);
 
   void set_non_convex_policy(NonConvexPolicy policy);
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
@@ -79,6 +81,7 @@ struct Solver
   friend struct ScipConstr;
   friend struct ScipIndicatorConstr;
   friend struct LpsolveVar;
+  friend struct ScipCurrentStateHandle;
 };
 
 namespace detail {
@@ -106,6 +109,8 @@ struct ISolver
   virtual void set_objective(Solver::Sense const& sense, Expr const& e) = 0;
   virtual void add(Constr const& constr) = 0;
   virtual void add(IndicatorConstr const& constr) = 0;
+
+  virtual void set_lazy_constr_handler(LazyConstrHandler const& constr) = 0;
   virtual std::pair<Solver::Result, bool> solve() = 0;
   virtual void set_non_convex_policy(Solver::NonConvexPolicy policy) = 0;
   virtual void set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy);

@@ -33,14 +33,13 @@ struct GurobiSolver : detail::ISolver
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
 
+  void set_lazy_constr_handler(LazyConstrHandler const&);
+
   std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
 
   void set_verbose(bool value);
-
-  GRBLinExpr as_grb_lin_expr(Expr const& e);
-  GRBQuadExpr as_grb_quad_expr(Expr const& e);
 
   void set_pending_update() const;
   void update_if_pending() const;
@@ -56,6 +55,7 @@ struct GurobiSolver : detail::ISolver
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;
+  std::unique_ptr<GRBCallback> p_callback;
 };
 
 }  // namespace miplib

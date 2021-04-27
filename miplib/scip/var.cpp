@@ -114,14 +114,14 @@ double ScipVar::lb() const
 {
   if (type() == Var::Type::Binary)
     return 0;
-  return SCIPvarGetLbLocal(p_var)	;
+  return SCIPvarGetLbOriginal(p_var)	;
 }
 
 double ScipVar::ub() const
 {
   if (type() == Var::Type::Binary)
     return 1;
-  return SCIPvarGetUbLocal(p_var)	;
+  return SCIPvarGetUbOriginal(p_var)	;
 }
 
 void ScipVar::set_lb(double new_lb)

@@ -46,6 +46,7 @@ struct Constr
   friend struct GurobiSolver;
   friend struct ScipSolver;
   friend struct LpsolveSolver;
+  friend struct GurobiCurrentStateHandle;
 };
 
 Constr operator!(Expr const& e);

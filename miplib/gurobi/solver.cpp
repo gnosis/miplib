@@ -69,7 +69,7 @@ std::shared_ptr<detail::IVar> GurobiSolver::create_var(
   return std::make_shared<GurobiVar>(solver, grb_var);
 }
 
-GRBLinExpr GurobiSolver::as_grb_lin_expr(Expr const& e)
+static GRBLinExpr as_grb_lin_expr(Expr const& e)
 {
   assert(e.is_linear());
   GRBLinExpr ge = e.constant();
@@ -89,7 +89,7 @@ GRBLinExpr GurobiSolver::as_grb_lin_expr(Expr const& e)
   return ge;
 }
 
-GRBQuadExpr GurobiSolver::as_grb_quad_expr(Expr const& e)
+static GRBQuadExpr as_grb_quad_expr(Expr const& e)
 {
   assert(e.is_quadratic());
   GRBQuadExpr ge = e.constant();
@@ -342,6 +342,54 @@ double GurobiSolver::infinity() const
 void GurobiSolver::dump(std::string const& filename) const
 {
   model.write(filename);
+}
+
+struct GurobiCurrentStateHandle : GRBCallback, ICurrentStateHandle
+{
+  GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr) :
+    m_constr_hdlr(constr_hdlr)
+    {}
+  double value(Var const& var) const
+  { 
+    GRBVar grb_var = static_cast<GurobiVar const&>(*var.p_impl).m_var;
+    if (where == GRB_CB_MIPSOL or where == GRB_CB_MULTIOBJ)
+      return const_cast<GurobiCurrentStateHandle*>(this)->getSolution(grb_var);
+    else
+    if (where == GRB_CB_MIPNODE)
+      return const_cast<GurobiCurrentStateHandle*>(this)->getNodeRel(grb_var);
+    throw std::logic_error("Failure to obtain variable value from current node.");
+  }
+  void add_lazy(Constr const& constr)
+  {
+    auto const& e = constr.expr();
+    auto const& type = constr.type();
+
+    if (e.is_linear())
+    {
+      GRBLinExpr lhs_expr = as_grb_lin_expr(e);
+      char sense = (type == Constr::LessEqual) ? GRB_LESS_EQUAL : GRB_EQUAL;
+      addLazy(lhs_expr, sense, 0);
+    }
+    else
+      throw std::logic_error("Gurobi supports lazy linear constraints only.");
+  }
+  void callback()
+  {
+    if (where != GRB_CB_MIPSOL)
+      return;
+    m_constr_hdlr.add(*this);
+  }
+  LazyConstrHandler m_constr_hdlr;
+};
+
+
+void GurobiSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
+{
+  if (p_callback)
+    throw std::logic_error("LazyConstrHandler already set.");
+  model.set(GRB_IntParam_LazyConstraints, 1);
+  p_callback = std::make_unique<GurobiCurrentStateHandle>(constr_hdlr);
+  model.setCallback(p_callback.get());
 }
 
 }  // namespace miplib

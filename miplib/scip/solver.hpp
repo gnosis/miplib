@@ -6,6 +6,8 @@
 
 namespace miplib {
 
+struct LazyConstrHandler;
+
 struct ScipSolver : detail::ISolver
 {
   ScipSolver();
@@ -33,6 +35,8 @@ struct ScipSolver : detail::ISolver
 
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
+
+  void set_lazy_constr_handler(LazyConstrHandler const& constr);
 
   std::pair<Solver::Result, bool> solve();
 

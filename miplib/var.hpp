@@ -54,14 +54,18 @@ struct Var
   void set_lb(double new_lb);
   void set_ub(double new_ub);
 
-  private:
   std::shared_ptr<detail::IVar> p_impl;
+
+  private:
   friend struct std::hash<Var>;
   friend struct boost::hash<Var>;
   friend struct std::less<Var>;
   friend struct GurobiSolver;
   friend struct ScipSolver;
   friend struct LpsolveSolver;  
+  friend struct ScipCurrentStateHandle;
+  friend struct ScipConstraintHandler;
+  friend struct GurobiCurrentStateHandle;
 };
 
 template<class T>
