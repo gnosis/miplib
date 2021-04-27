@@ -83,7 +83,8 @@ void Solver::add(IndicatorConstr const& constr, bool scale)
     for (auto const& c: constr.reformulation())
       add(c, scale);
   }
-  p_impl->add(constr);
+  else
+    p_impl->add(constr);
 }
 
 void Solver::set_lazy_constr_handler(LazyConstrHandler const& constr_handler)
