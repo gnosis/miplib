@@ -93,6 +93,8 @@ struct Expr
     return p_impl->solver();
   }
 
+  Expr& operator=(Expr const&) = default;
+
   Expr& operator+=(double c)
   {
     *p_impl += c;
