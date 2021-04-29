@@ -93,18 +93,17 @@ Expr Constr::reified() const
     throw std::logic_error("Attempt to reify a constraint that is trivially satisfied.");
 
   auto const& e = expr();
-  double lb = e.lb();
   double ub = e.ub();
 
   if (ub > 0)
   {
-    assert(lb == 0);
+    assert(e.lb() == 0);
     return e;
   }
   else
   {
     assert(ub == 0);
-    assert(lb < 0);
+    assert(e.lb() < 0);
     return -e;
   }
 }
