@@ -44,9 +44,10 @@ struct GurobiSolver : detail::ISolver
   void set_pending_update() const;
   void update_if_pending() const;
 
-  bool supports_indicator_constraints() const { return true; }
   bool supports_quadratic_constraints() const { return true; }
   bool supports_quadratic_objective() const { return true; }
+
+  bool supports_indicator_constraint(IndicatorConstr const& i) const;
 
   double infinity() const;
 

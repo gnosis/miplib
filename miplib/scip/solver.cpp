@@ -56,36 +56,6 @@ std::shared_ptr<detail::IIndicatorConstr> ScipSolver::create_indicator_constr(
   std::optional<std::string> const& name
 )
 {
-  if (implicant.type() != Constr::Equal)
-  {
-    throw std::logic_error("Scip indicator constraints require an equation implicant.");
-  }
-
-  if (!implicant.expr().is_linear())
-  {
-    throw std::logic_error("Scip indicator constraints require a linear implicant.");
-  }
-
-  auto implicant_linear_vars = implicant.expr().linear_vars();
-  auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
-
-  if (implicant_linear_vars.size() != 1)
-  {
-    throw std::logic_error(
-      "Scip indicator constraints require single variable implicant.");
-  }
-
-  double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
-  if (c != 0 and c != 1)
-  {
-    throw std::logic_error("Scip indicator constraints require a 'v = [0|1]' implicant.");
-  }
-
-  if (!implicand.expr().is_linear())
-  {
-    throw std::logic_error("Scip indicator constraints require a linear implicand.");
-  }
-
   return std::make_shared<ScipIndicatorConstr>(implicant, implicand, name);
 }
 
@@ -218,6 +188,39 @@ void ScipSolver::add(Constr const& constr)
   constr_impl.p_constr = p_constr;
 }
 
+bool ScipSolver::supports_indicator_constraint(IndicatorConstr const& constr) const
+{
+  auto const& implicant = constr.implicant();
+  auto const& implicand = constr.implicand();
+
+  // Scip indicator constraints require an equation implicant.
+  if (implicant.type() != Constr::Equal)
+    return false;
+
+  // Scip indicator constraints require a linear implicant.
+  if (!implicant.expr().is_linear())
+    return false;
+
+  auto implicant_linear_vars = implicant.expr().linear_vars();
+  auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
+
+  // Scip indicator constraints require single variable implicant.
+  if (implicant_linear_vars.size() != 1)
+    return false;
+
+  // Scip indicator constraints require a 'v = [0|1]' implicant.
+  double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
+  if (c != 0 and c != 1)
+    return false;
+
+  // Scip indicator constraints require a linear implicand.
+  if (!implicand.expr().is_linear())
+    return false;
+  
+  return true;
+}
+
+
 void ScipSolver::add(IndicatorConstr const& constr)
 {
   auto const& constr_impl = static_cast<ScipIndicatorConstr const&>(*constr.p_impl);
@@ -228,15 +231,21 @@ void ScipSolver::add(IndicatorConstr const& constr)
   }
   assert(constr_impl.p_constr_1 == nullptr);
 
+  if (!supports_indicator_constraint(constr))
+    throw std::logic_error(
+      "Scip does not support this indicator constraint. Try .reformulation()."
+    );
+
   auto const& implicant = constr.implicant();
   auto const& implicand = constr.implicand();
   auto const& name = constr.name();
 
-  assert(implicant.type() == Constr::Equal);
-  assert(implicant.expr().is_linear());
-
   auto implicant_linear_vars = implicant.expr().linear_vars();
   auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
+
+
+  assert(implicant.type() == Constr::Equal);
+  assert(implicant.expr().is_linear());
 
   auto implicand_linear_vars = implicand.expr().linear_vars();
   auto implicand_linear_coeffs = implicand.expr().linear_coeffs();

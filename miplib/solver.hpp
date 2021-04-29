@@ -56,7 +56,8 @@ struct Solver
 
   void set_verbose(bool value);
 
-  bool supports_indicator_constraints() const;
+  bool supports_indicator_constraint(IndicatorConstr const& constr) const;
+
   bool supports_quadratic_constraints() const;
   bool supports_quadratic_objective() const;
 
@@ -117,7 +118,8 @@ struct ISolver
 
   virtual void set_verbose(bool value) = 0;
 
-  virtual bool supports_indicator_constraints() const = 0;
+  virtual bool supports_indicator_constraint(IndicatorConstr const& constr) const = 0;
+
   virtual bool supports_quadratic_constraints() const = 0;
   virtual bool supports_quadratic_objective() const = 0;
 

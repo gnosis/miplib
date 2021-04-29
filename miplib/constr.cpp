@@ -40,19 +40,46 @@ std::optional<std::string> const& Constr::name() const
   return p_impl->m_name;
 }
 
+bool Constr::must_be_satisfied() const
+{
+  auto const& e = expr();
+  double lb = e.lb();
+  double ub = e.ub();
+  if (ub > 0) // FIXME: use eps
+    return false;
+  if (type() == Type::LessEqual)
+    return true;
+  if (lb < 0) // FIXME: use eps
+    return false;
+  return true;
+}
+
+bool Constr::must_be_violated() const
+{
+  auto const& e = expr();
+  double lb = e.lb();
+  double ub = e.ub();
+  if (lb > 0) // FIXME: use eps
+    return true;
+  if (ub < 0 and type() == Type::Equal) // FIXME: use eps
+    return true;
+  return false;  
+}
+
 // If the truth value of the constraint can be captured as
 // a linear expression (without introducing extra variables).
+// A constraint is reifiable if its domain is either non-negative
+// or non-positive.
 bool Constr::is_reifiable() const
 {
   auto const& e = expr();
-  if (!e.is_linear())
+  if (type() != Type::Equal)
     return false;
-  if (e.arity() != 1)
+  if (!e.must_be_integer())
     return false;
-  if (e.linear_vars()[0].type() != Var::Type::Binary)
+  if (e.lb() * e.ub() < 0) // FIXME: use eps
     return false;
-  double d = e.constant() / e.linear_coeffs()[0];
-  return d == 0 or d == 1 or d == -1;
+  return true;
 }
 
 // Get the truth value of the constraint as a linear expression.
@@ -60,14 +87,25 @@ Expr Constr::reified() const
 {
   if (!is_reifiable())
     throw std::logic_error("Attempt to reify non-reifiable constraint.");
+  if (must_be_violated())
+    throw std::logic_error("Attempt to reify a constraint that is trivially violated.");
+  if (must_be_satisfied())
+    throw std::logic_error("Attempt to reify a constraint that is trivially satisfied.");
+
   auto const& e = expr();
-  double d = e.constant() / e.linear_coeffs()[0];
-  if (d == 0)
-    return e.linear_vars()[0];
+  double lb = e.lb();
+  double ub = e.ub();
+
+  if (ub > 0)
+  {
+    assert(lb == 0);
+    return e;
+  }
   else
   {
-    assert(d == 1 or d == -1);
-    return 1 - e.linear_vars()[0];
+    assert(ub == 0);
+    assert(lb < 0);
+    return -e;
   }
 }
 
@@ -172,36 +210,6 @@ std::shared_ptr<detail::IIndicatorConstr> create_reformulatable_indicator_constr
   std::optional<std::string> const& name
 )
 {
-  if (implicant.type() != Constr::Equal)
-  {
-    throw std::logic_error("Indicator constraints require an equation implicant.");
-  }
-
-  if (!implicant.expr().is_linear())
-  {
-    throw std::logic_error("Indicator constraints require a linear implicant.");
-  }
-
-  auto implicant_linear_vars = implicant.expr().linear_vars();
-  auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
-
-  if (implicant_linear_vars.size() != 1)
-  {
-    throw std::logic_error(
-      "Indicator constraints require single variable implicant.");
-  }
-
-  double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
-  if (c != 0 and c != 1)
-  {
-    throw std::logic_error("Indicator constraints require a 'v = [0|1]' implicant.");
-  }
-
-  if (!implicand.expr().is_linear())
-  {
-    throw std::logic_error("Indicator constraints require a linear implicand.");
-  }
-
   return std::make_shared<IIndicatorConstr>(implicant, implicand, name);
 }
 } // namespace detail

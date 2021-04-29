@@ -65,6 +65,89 @@ TEMPLATE_TEST_CASE_SIG(
 
 
 TEMPLATE_TEST_CASE_SIG(
+  "Indicator constraint automatic reformulation", "[miplib]",
+  ((miplib::Solver::Backend Backend), Backend),
+  miplib::Solver::Backend::Gurobi,
+  miplib::Solver::Backend::Scip,
+  miplib::Solver::Backend::Lpsolve
+)
+{
+  using namespace miplib;
+
+  if (!Solver::supports_backend(Backend))
+    return;
+
+  Solver solver(Backend);
+
+  // Disable automatic reformulation
+  solver.set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy::PassThrough);
+
+  SECTION("Can't add indicator constraint with inequation implicant")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Integer, "z2");
+    REQUIRE_THROWS_AS(solver.add((z1 == 0) << (z2 >= 1)), std::logic_error);
+  }
+
+  SECTION("No backend supports indicator constraints with n-ary implicants")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    REQUIRE_THROWS_AS(solver.add((z1 + z2 == 2) >> (z2 >= 1)), std::logic_error);
+  }
+
+  SECTION("No backend supports indicator constraints with non-linear implicand")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    REQUIRE_THROWS_AS(solver.add((z1 == 0) >> (z2 * z1 >= 1)), std::logic_error);
+  }
+
+  SECTION("No backend supports indicator constraints with non-linear implicant")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    REQUIRE_THROWS_AS(solver.add((z1 * z2 == 0) >> (z2 >= 1)), std::logic_error);
+  }
+
+  // Enable automatic reformulation
+  solver.set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported);
+
+  SECTION("Still can't add indicator constraint with inequation implicant")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Integer, "z2");
+    REQUIRE_THROWS_AS(solver.add((z1 == 0) << (z2 >= 1)), std::logic_error);
+  }
+
+  SECTION("Half space implicants are automatically reformulated")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    REQUIRE_NOTHROW(solver.add((z1 + z2 == 2) >> (z2 >= 1)));
+  }
+
+  SECTION("Non-linear implicands are automatically reformulated")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    // lp solve doesn't support quadratic constraints.
+    if (Backend != miplib::Solver::Backend::Lpsolve)
+      REQUIRE_NOTHROW(solver.add((z1 == 0) >> (z2 * z1 >= 1)));
+  }
+
+  SECTION("Non-linear implicants are automatically reformulated")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    // lp solve doesn't support quadratic constraints.
+    if (Backend != miplib::Solver::Backend::Lpsolve)
+      REQUIRE_NOTHROW(solver.add((z1 * z2 == 0) >> (z2 >= 1)));
+  }
+}
+
+
+TEMPLATE_TEST_CASE_SIG(
   "Lazy constraints", "[miplib]",
   ((miplib::Solver::Backend Backend), Backend),
   miplib::Solver::Backend::Gurobi,

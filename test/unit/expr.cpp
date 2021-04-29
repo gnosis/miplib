@@ -105,14 +105,6 @@ TEMPLATE_TEST_CASE_SIG(
     fmt::format("{}",
       (v1 == 1) >> (2*v2 + v3 <= 1)) == "v1 - 1 = 0 -> 2 v2 + v3 - 1 <= 0"
   );
-
-  // Implicant must be an equation v=1 or v=0.
-  REQUIRE_THROWS_AS((v1 == 0) << (v2 >= 1), std::logic_error);
-  REQUIRE_THROWS_AS((v1 + v2 == 0) >> (v2 >= 1), std::logic_error);
-  REQUIRE_THROWS_AS((v1 * v2 == 0) >> (v2 >= 1), std::logic_error);
-
-  // Implicand must be linear.
-  REQUIRE_THROWS_AS((v1 == 0) >> (v2 * v1 >= 1), std::logic_error);
 }
 
 TEMPLATE_TEST_CASE_SIG(
@@ -372,4 +364,46 @@ TEMPLATE_TEST_CASE_SIG(
     REQUIRE(fmt::format("{}", r[0]) == "x + 2 z - 4 <= 0");
   }
 
+  SECTION("No reformulation since implicant is not a half space")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    Var x(solver, Var::Type::Integer, std::nullopt, 1, "x");
+    REQUIRE(!((z1 - z2) >> (x == 0)).has_reformulation());
+  }
+
+  SECTION("Inequality reformulation of non unary implicant")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    Var x(solver, Var::Type::Integer, std::nullopt, 2, "x");
+    REQUIRE(((z1 + z2 == 2) >> (x <= 0)).has_reformulation());
+    auto const r = ((z1 + z2 == 2) >> (x <= 0)).reformulation();
+    REQUIRE(r.size() == 1);
+    REQUIRE(fmt::format("{}", r[0]) == "x + 2 z1 + 2 z2 - 4 <= 0");
+  }
+
+  SECTION("Inequality reformulation of non unary implicant #2")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    Var x(solver, Var::Type::Integer, std::nullopt, 2, "x");
+    REQUIRE(((-z1 - z2 == -2) >> (x <= 0)).has_reformulation());
+    auto const r = ((-z1 - z2 == -2) >> (x <= 0)).reformulation();
+    REQUIRE(r.size() == 1);
+    REQUIRE(fmt::format("{}", r[0]) == "x + 2 z1 + 2 z2 - 4 <= 0");
+  }
+
+  SECTION("Equality reformulation of non unary implicant")
+  {
+    Var z1(solver, Var::Type::Binary, "z1");
+    Var z2(solver, Var::Type::Binary, "z2");
+    Var x(solver, Var::Type::Integer, 2, 4, "x");
+    REQUIRE(((z1 + z2 == 2) >> (x == 3)).has_reformulation());
+    auto const r = ((z1 + z2 == 2) >> (x == 3)).reformulation();
+    REQUIRE(r.size() == 2);
+    REQUIRE(fmt::format("{}", r[0]) == "x + z1 + z2 - 5 <= 0");
+    REQUIRE(fmt::format("{}", r[1]) == "-x + z1 + z2 + 1 <= 0");
+  }
 }
+

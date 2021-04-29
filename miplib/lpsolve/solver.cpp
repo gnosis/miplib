@@ -118,6 +118,11 @@ void LpsolveSolver::add(Constr const& constr)
   constr_impl.m_orig_row_idx = get_Nrows(p_lprec);
 }
 
+bool LpsolveSolver::supports_indicator_constraint(IndicatorConstr const&) const
+{
+  return false;
+}
+
 void LpsolveSolver::add(IndicatorConstr const&)
 {
   throw std::logic_error("Lpsolve does not support indicator constraints.");

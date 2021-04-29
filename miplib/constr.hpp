@@ -35,6 +35,9 @@ struct Constr
   bool is_reifiable() const;
   Expr reified() const;
 
+  bool must_be_satisfied() const;
+  bool must_be_violated() const;
+
   Constr scale(
     double skip_lb = MIN_MAX_ABS_SKIP_SCALE,
     double skip_ub = MAX_MAX_ABS_SKIP_SCALE

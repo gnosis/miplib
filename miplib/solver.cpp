@@ -73,7 +73,7 @@ void Solver::add(IndicatorConstr const& constr, bool scale)
     p_impl->m_indicator_constraint_policy == 
       Solver::IndicatorConstraintPolicy::Reformulate or
     (
-      !supports_indicator_constraints() and
+      !supports_indicator_constraint(constr) and
       p_impl->m_indicator_constraint_policy == 
       Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported
     ) or
@@ -114,6 +114,11 @@ void Solver::set_non_convex_policy(NonConvexPolicy policy)
   p_impl->set_non_convex_policy(policy);
 }
 
+void Solver::set_indicator_constraint_policy(IndicatorConstraintPolicy policy)
+{
+  p_impl->set_indicator_constraint_policy(policy);
+}
+
 void Solver::set_verbose(bool value)
 {
   p_impl->set_verbose(value);
@@ -124,9 +129,9 @@ void Solver::set_constraint_autoscale(bool autoscale)
   m_constraint_autoscale = autoscale;
 }
 
-bool Solver::supports_indicator_constraints() const
-{ 
-  return p_impl->supports_indicator_constraints(); 
+bool Solver::supports_indicator_constraint(IndicatorConstr const& constr) const
+{
+  return p_impl->supports_indicator_constraint(constr); 
 }
 
 bool Solver::supports_quadratic_constraints() const

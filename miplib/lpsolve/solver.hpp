@@ -43,7 +43,8 @@ struct LpsolveSolver : detail::ISolver
 
   std::vector<int> get_col_idxs(std::vector<Var> const& vars);
 
-  bool supports_indicator_constraints() const { return false; }
+  bool supports_indicator_constraint(IndicatorConstr const& constr) const;
+
   bool supports_quadratic_constraints() const { return false; }
   bool supports_quadratic_objective() const { return false; }
 

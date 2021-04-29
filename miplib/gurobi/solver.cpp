@@ -158,37 +158,6 @@ std::shared_ptr<detail::IIndicatorConstr> GurobiSolver::create_indicator_constr(
   Constr const& implicand,
   std::optional<std::string> const& name)
 {
-  if (implicant.type() != Constr::Equal)
-  {
-    throw std::logic_error("Gurobi indicator constraints require an equation implicant.");
-  }
-
-  if (!implicant.expr().is_linear())
-  {
-    throw std::logic_error("Gurobi indicator constraints require a linear implicant.");
-  }
-
-  auto implicant_linear_vars = implicant.expr().linear_vars();
-  auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
-
-  if (implicant_linear_vars.size() != 1)
-  {
-    throw std::logic_error(
-      "Gurobi indicator constraints require single variable implicant.");
-  }
-
-  double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
-  if (c != 0 and c != 1)
-  {
-    throw std::logic_error(
-      "Gurobi indicator constraints require a 'v = [0|1]' implicant.");
-  }
-
-  if (!implicand.expr().is_linear())
-  {
-    throw std::logic_error("Gurobi indicator constraints require a linear implicand.");
-  }
-
   return std::make_shared<GurobiIndicatorConstr>(implicant, implicand, name);
 }
 
@@ -237,23 +206,59 @@ void GurobiSolver::add(Constr const& constr)
   }
 }
 
-
-void GurobiSolver::add(IndicatorConstr const& constr)
+bool GurobiSolver::supports_indicator_constraint(IndicatorConstr const& constr) const
 {
   auto const& implicant = constr.implicant();
   auto const& implicand = constr.implicand();
-  auto const& name = constr.name();
 
-  assert(implicant.type() == Constr::Equal);
-  assert(implicant.expr().is_linear());
+  // Gurobi indicator constraints require an equation implicant.
+  if (implicant.type() != Constr::Equal)
+    return false;
+
+  // Gurobi indicator constraints require a linear implicant.
+  if (!implicant.expr().is_linear())
+    return false;
 
   auto implicant_linear_vars = implicant.expr().linear_vars();
   auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
 
-  assert(implicant_linear_vars.size() == 1);
+  // Gurobi indicator constraints require single variable implicant.
+  if (implicant_linear_vars.size() != 1)
+    return false;
 
   double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
+  // Gurobi indicator constraints require a 'v = [0|1]' implicant.
+  if (c != 0 and c != 1)
+    return false;
+
+  // Gurobi indicator constraints require a linear implicand.
+  if (!implicand.expr().is_linear())
+    return false;
+
+  return true;
+}
+
+void GurobiSolver::add(IndicatorConstr const& constr)
+{
+  if (!supports_indicator_constraint(constr))
+    throw std::logic_error(
+      "Gurobi doesn't support this indicator constraint. Try .reformulation()."
+    );
+
+  auto const& implicant = constr.implicant();
+  auto const& implicand = constr.implicand();
+  auto const& name = constr.name();
+
+  auto implicant_linear_vars = implicant.expr().linear_vars();
+  auto implicant_linear_coeffs = implicant.expr().linear_coeffs();
+
+  assert(implicant.type() == Constr::Equal);
+  assert(implicant.expr().is_linear());
+
+  assert(implicant_linear_vars.size() == 1);
+  double c = -implicant_linear_coeffs[0] * implicant.expr().constant();
   assert(c == 0 or c == 1);
+
   int bin_val = (int) c;
   GRBVar bin_var = static_cast<GurobiVar const&>(*implicant_linear_vars[0].p_impl).m_var;
 

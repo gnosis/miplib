@@ -46,7 +46,8 @@ struct ScipSolver : detail::ISolver
 
   SCIP_CONS* as_scip_constr(Constr const& constr);
 
-  bool supports_indicator_constraints() const { return true; }
+  bool supports_indicator_constraint(IndicatorConstr const& constr) const;
+
   bool supports_quadratic_constraints() const { return true; }
   bool supports_quadratic_objective() const { return true; }
 
