@@ -297,6 +297,15 @@ void GurobiSolver::set_verbose(bool value)
   model.set(GRB_IntParam_OutputFlag, value);
 }
 
+void GurobiSolver::set_int_feasibility_tolerance(double value)
+{
+  model.set(GRB_DoubleParam_IntFeasTol, value);
+}
+
+void GurobiSolver::set_feasibility_tolerance(double value)
+{
+  model.set(GRB_DoubleParam_FeasibilityTol, value);
+}
 
 std::pair<Solver::Result, bool> GurobiSolver::solve()
 {

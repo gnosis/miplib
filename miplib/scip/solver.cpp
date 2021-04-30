@@ -378,6 +378,18 @@ void ScipSolver::set_verbose(bool value)
   SCIPmessagehdlrSetQuiet(SCIPgetMessagehdlr(p_env), !value);
 }
 
+void ScipSolver::set_feasibility_tolerance(double value)
+{
+  SCIPchgFeastol(p_env, value);
+  SCIPsetLPFeastol(p_env, value);
+}
+
+void ScipSolver::set_int_feasibility_tolerance(double value)
+{
+  SCIPchgFeastol(p_env, value);
+  SCIPsetLPFeastol(p_env, value);
+}
+
 double ScipSolver::infinity() const
 {
   return SCIPinfinity(p_env);

@@ -186,6 +186,17 @@ void LpsolveSolver::set_non_convex_policy(Solver::NonConvexPolicy /*policy*/)
   // Not supported by lpsolve.
 }
 
+void LpsolveSolver::set_int_feasibility_tolerance(double value)
+{
+  set_epsint(p_lprec, value);
+}
+
+void LpsolveSolver::set_feasibility_tolerance(double value)
+{
+  set_epsb(p_lprec, value);
+  set_epsel(p_lprec, value);
+}
+
 void LpsolveSolver::set_verbose(bool value)
 {
   if (value)

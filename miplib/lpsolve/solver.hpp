@@ -39,6 +39,9 @@ struct LpsolveSolver : detail::ISolver
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
 
+  void set_int_feasibility_tolerance(double value);
+  void set_feasibility_tolerance(double value);
+
   void set_verbose(bool value);
 
   std::vector<int> get_col_idxs(std::vector<Var> const& vars);

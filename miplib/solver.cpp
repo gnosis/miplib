@@ -129,6 +129,16 @@ void Solver::set_constraint_autoscale(bool autoscale)
   m_constraint_autoscale = autoscale;
 }
 
+void Solver::set_feasibility_tolerance(double value)
+{
+  p_impl->set_feasibility_tolerance(value);
+}
+
+void Solver::set_int_feasibility_tolerance(double value)
+{
+  p_impl->set_int_feasibility_tolerance(value);
+}
+
 bool Solver::supports_indicator_constraint(IndicatorConstr const& constr) const
 {
   return p_impl->supports_indicator_constraint(constr); 

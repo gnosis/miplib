@@ -38,6 +38,8 @@ struct GurobiSolver : detail::ISolver
   std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
+  void set_int_feasibility_tolerance(double value);
+  void set_feasibility_tolerance(double value);
 
   void set_verbose(bool value);
 

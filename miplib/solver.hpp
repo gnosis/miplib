@@ -47,6 +47,9 @@ struct Solver
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
   void set_constraint_autoscale(bool autoscale);
 
+  void set_int_feasibility_tolerance(double value);
+  void set_feasibility_tolerance(double value);
+
   // returns Result and if there is a solution.
   std::pair<Result, bool> solve();
 
@@ -115,6 +118,9 @@ struct ISolver
   virtual std::pair<Solver::Result, bool> solve() = 0;
   virtual void set_non_convex_policy(Solver::NonConvexPolicy policy) = 0;
   virtual void set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy);
+
+  virtual void set_int_feasibility_tolerance(double value) = 0;
+  virtual void set_feasibility_tolerance(double value) = 0;
 
   virtual void set_verbose(bool value) = 0;
 
