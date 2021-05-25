@@ -173,6 +173,12 @@ void ScipSolver::set_objective(Solver::Sense const& sense, Expr const& e)
 
 void ScipSolver::add(Constr const& constr)
 {
+  if (is_in_callback())
+  {
+    p_current_state_handler->add_lazy(constr);
+    return;
+  }
+
   auto const& constr_impl = static_cast<ScipConstr const&>(*constr.p_impl);
 
   if (constr_impl.p_constr != nullptr)
@@ -380,14 +386,16 @@ void ScipSolver::set_verbose(bool value)
 
 void ScipSolver::set_feasibility_tolerance(double value)
 {
-  SCIPchgFeastol(p_env, value);
-  SCIPsetLPFeastol(p_env, value);
+  SCIP_CALL_EXC(SCIPprintStage(p_env, stdout));
+  fflush(stdout);
+  SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
+  //SCIPsetLPFeastol(p_env, value);
 }
 
 void ScipSolver::set_int_feasibility_tolerance(double value)
 {
-  SCIPchgFeastol(p_env, value);
-  SCIPsetLPFeastol(p_env, value);
+  SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
+  //SCIPsetLPFeastol(p_env, value);
 }
 
 double ScipSolver::infinity() const
@@ -395,28 +403,40 @@ double ScipSolver::infinity() const
   return SCIPinfinity(p_env);
 }
 
+void ScipSolver::set_time_limit(double secs)
+{
+  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "limits/time", secs));
+}
+
 void ScipSolver::dump(std::string const& filename) const
 {
   SCIP_CALL_EXC(SCIPwriteOrigProblem(p_env, filename.c_str(), NULL, false));	
 }
 
-
-struct ScipCurrentStateHandle : ICurrentStateHandle
+bool ScipSolver::is_in_callback() const
 {
-  ScipCurrentStateHandle(ScipSolver& solver, SCIP_SOL* ap_sol) : m_solver(solver), p_sol(ap_sol) {}
-  double value(Var const& var) const
-  { 
-    auto p_env = m_solver.p_env;
-    auto p_var = static_cast<ScipVar const&>(*var.p_impl).p_var;
-    return SCIPgetSolVal(p_env, p_sol, p_var);
-  }
-  void add_lazy(Constr const& constr)
-  {
-    m_solver.add(constr);
-  }
-  ScipSolver& m_solver;
-  SCIP_SOL* p_sol;
-};
+  return (bool)p_current_state_handler;
+}
+
+namespace detail {
+
+ScipCurrentStateHandle::ScipCurrentStateHandle(ScipSolver& solver, SCIP_SOL* ap_sol) : 
+  m_solver(solver), p_sol(ap_sol), m_active(false) 
+{}
+  
+double ScipCurrentStateHandle::value(IVar const& var) const
+{ 
+  auto p_env = m_solver.p_env;
+  auto p_var = static_cast<ScipVar const&>(var).p_var;
+  return SCIPgetSolVal(p_env, p_sol, p_var);
+}
+
+void ScipCurrentStateHandle::add_lazy(Constr const& constr)
+{
+  m_solver.add(constr);
+}
+
+} // namespace detail
 
 
 struct ScipConstraintHandler: scip::ObjConshdlr
@@ -449,10 +469,20 @@ struct ScipConstraintHandler: scip::ObjConshdlr
     m_constr_hdlr(constr_hdlr) {
   }
 
+  struct CurrentStateHandlerGuard {
+    CurrentStateHandlerGuard(ScipSolver& solver, SCIP_SOL* p_sol) : m_solver(solver) {
+      m_solver.p_current_state_handler = std::make_unique<detail::ScipCurrentStateHandle>(m_solver, p_sol);
+    }
+    ~CurrentStateHandlerGuard() {
+      m_solver.p_current_state_handler.reset();
+    }
+    ScipSolver& m_solver;
+  };
+
   SCIP_DECL_CONSCHECK(scip_check)
   {
-    ScipCurrentStateHandle handle(m_solver, sol);    
-    if (m_constr_hdlr.is_feasible(handle))
+    CurrentStateHandlerGuard guard(m_solver, sol);
+    if (m_constr_hdlr.is_feasible())
       *result = SCIP_FEASIBLE;
     else
       *result = SCIP_INFEASIBLE;
@@ -467,8 +497,8 @@ struct ScipConstraintHandler: scip::ObjConshdlr
 
   SCIP_DECL_CONSENFOLP(scip_enfolp)
   {
-    ScipCurrentStateHandle handle(m_solver, nullptr);
-    if (m_constr_hdlr.add(handle))
+    CurrentStateHandlerGuard guard(m_solver, nullptr);
+    if (m_constr_hdlr.add())
       *result = SCIP_CONSADDED;
     else
       *result = SCIP_FEASIBLE;
@@ -484,6 +514,7 @@ struct ScipConstraintHandler: scip::ObjConshdlr
 
   SCIP_DECL_CONSLOCK(scip_lock)
   {
+    CurrentStateHandlerGuard guard(m_solver, nullptr);
     for (auto const& v: m_constr_hdlr.depends())
     {
       auto p_var = static_cast<ScipVar const&>(*v.p_impl).p_var;

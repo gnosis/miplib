@@ -70,6 +70,8 @@ struct Solver
 
   void dump(std::string const& filename) const;
 
+  void set_time_limit(double secs);
+
   private:
   std::shared_ptr<detail::ISolver> p_impl;
   const Backend m_backend;
@@ -130,6 +132,8 @@ struct ISolver
   virtual bool supports_quadratic_objective() const = 0;
 
   virtual double infinity() const = 0;
+
+  virtual void set_time_limit(double secs) = 0;
 
   virtual void dump(std::string const& filename) const = 0;
 

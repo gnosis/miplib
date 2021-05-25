@@ -69,6 +69,10 @@ ScipVar::~ScipVar() noexcept(false)
 double ScipVar::value() const
 {
   auto const& scip_solver = static_cast<ScipSolver const&>(*m_solver.p_impl);
+
+  if (scip_solver.is_in_callback())
+    return scip_solver.p_current_state_handler->value(*this);
+
   SCIP_SOL* p_sol = scip_solver.p_sol;
   if (p_sol == nullptr)
   {
@@ -106,6 +110,11 @@ std::optional<std::string> ScipVar::name() const
 
 void ScipVar::set_name(std::string const& new_name)
 {
+  auto const& scip_solver = static_cast<ScipSolver const&>(*m_solver.p_impl);
+
+  if (scip_solver.is_in_callback())
+    throw std::logic_error("Can't modify this attribute from a callback.");
+
   auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;  
   SCIPchgVarName(p_env, p_var, new_name.c_str());
 }
@@ -126,12 +135,22 @@ double ScipVar::ub() const
 
 void ScipVar::set_lb(double new_lb)
 {
-  auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
+  auto const& scip_solver = static_cast<ScipSolver const&>(*m_solver.p_impl);
+
+  if (scip_solver.is_in_callback())
+    throw std::logic_error("Can't modify this attribute from a callback.");
+
+  auto p_env = scip_solver.p_env;
   SCIPchgVarLb(p_env, p_var, new_lb);
 }
 
 void ScipVar::set_ub(double new_ub)
 {
+  auto const& scip_solver = static_cast<ScipSolver const&>(*m_solver.p_impl);
+
+  if (scip_solver.is_in_callback())
+    throw std::logic_error("Can't modify this attribute from a callback.");
+
   auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
   SCIPchgVarUb(p_env, p_var, new_ub);
 }

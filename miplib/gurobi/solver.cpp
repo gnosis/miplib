@@ -182,6 +182,12 @@ void GurobiSolver::add(Constr const& constr)
   auto const& type = constr.type();
   auto const& name = constr.name();
 
+  if (is_in_callback())
+  {
+    p_callback->add_lazy(constr);
+    return;
+  }
+
   if (e.is_linear())
   {
     GRBLinExpr lhs_expr = as_grb_lin_expr(e);
@@ -242,7 +248,12 @@ void GurobiSolver::add(IndicatorConstr const& constr)
 {
   if (!supports_indicator_constraint(constr))
     throw std::logic_error(
-      "Gurobi doesn't support this indicator constraint. Try .reformulation()."
+      "Gurobi doesn't support this indicator constraint. Try ctr.reformulation()."
+    );
+
+  if (is_in_callback())
+    throw std::logic_error(
+      "Gurobi doesn't support adding indicator constraints during solving. Try ctr.reformulation()."
     );
 
   auto const& implicant = constr.implicant();
@@ -358,51 +369,72 @@ void GurobiSolver::dump(std::string const& filename) const
   model.write(filename);
 }
 
-struct GurobiCurrentStateHandle : GRBCallback, ICurrentStateHandle
+void GurobiSolver::set_time_limit(double secs)
 {
-  GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr) :
-    m_constr_hdlr(constr_hdlr)
-    {}
-  double value(Var const& var) const
-  { 
-    GRBVar grb_var = static_cast<GurobiVar const&>(*var.p_impl).m_var;
-    if (where == GRB_CB_MIPSOL or where == GRB_CB_MULTIOBJ)
-      return const_cast<GurobiCurrentStateHandle*>(this)->getSolution(grb_var);
-    else
-    if (where == GRB_CB_MIPNODE)
-      return const_cast<GurobiCurrentStateHandle*>(this)->getNodeRel(grb_var);
-    throw std::logic_error("Failure to obtain variable value from current node.");
-  }
-  void add_lazy(Constr const& constr)
-  {
-    auto const& e = constr.expr();
-    auto const& type = constr.type();
+  model.set(GRB_DoubleParam_TimeLimit, secs);
+}
 
-    if (e.is_linear())
-    {
-      GRBLinExpr lhs_expr = as_grb_lin_expr(e);
-      char sense = (type == Constr::LessEqual) ? GRB_LESS_EQUAL : GRB_EQUAL;
-      addLazy(lhs_expr, sense, 0);
-    }
-    else
-      throw std::logic_error("Gurobi supports lazy linear constraints only.");
-  }
-  void callback()
-  {
-    if (where != GRB_CB_MIPSOL)
-      return;
-    m_constr_hdlr.add(*this);
-  }
-  LazyConstrHandler m_constr_hdlr;
-};
+bool GurobiSolver::is_in_callback() const
+{
+  return p_callback and p_callback->is_active();
+}
 
+namespace detail {
+
+GurobiCurrentStateHandle::GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr) :
+  m_constr_hdlr(constr_hdlr), m_active(false)
+  {}
+
+double GurobiCurrentStateHandle::value(IVar const& var) const
+{ 
+  GRBVar grb_var = static_cast<GurobiVar const&>(var).m_var;
+  if (where == GRB_CB_MIPSOL or where == GRB_CB_MULTIOBJ)
+    return const_cast<GurobiCurrentStateHandle*>(this)->getSolution(grb_var);
+  else
+  if (where == GRB_CB_MIPNODE)
+    return const_cast<GurobiCurrentStateHandle*>(this)->getNodeRel(grb_var);
+  throw std::logic_error("Failure to obtain variable value from current node.");
+}
+
+void GurobiCurrentStateHandle::add_lazy(Constr const& constr)
+{
+  auto const& e = constr.expr();
+  auto const& type = constr.type();
+
+  if (e.is_linear())
+  {
+    GRBLinExpr lhs_expr = as_grb_lin_expr(e);
+    char sense = (type == Constr::LessEqual) ? GRB_LESS_EQUAL : GRB_EQUAL;
+    addLazy(lhs_expr, sense, 0);
+  }
+  else
+    throw std::logic_error("Gurobi supports lazy linear constraints only.");
+}
+
+void GurobiCurrentStateHandle::callback()
+{
+  if (where != GRB_CB_MIPSOL)
+    return;
+
+  m_active = true;
+  try {
+    m_constr_hdlr.add();
+  }
+  catch (...) {
+    m_active = false;
+    throw;
+  }
+  m_active = false;
+}
+
+} // namespace detail
 
 void GurobiSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
 {
   if (p_callback)
     throw std::logic_error("LazyConstrHandler already set.");
   model.set(GRB_IntParam_LazyConstraints, 1);
-  p_callback = std::make_unique<GurobiCurrentStateHandle>(constr_hdlr);
+  p_callback = std::make_unique<detail::GurobiCurrentStateHandle>(constr_hdlr);
   model.setCallback(p_callback.get());
 }
 

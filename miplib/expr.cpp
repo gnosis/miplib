@@ -379,6 +379,11 @@ bool Expr::must_be_integer() const
   return true;
 }
 
+double Expr::is_zero() const
+{
+  return is_constant() and constant() == 0;
+}
+
 
 // coefficients of linear part
 std::vector<double> Expr::linear_coeffs() const

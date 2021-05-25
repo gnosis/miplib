@@ -211,6 +211,11 @@ double LpsolveSolver::infinity() const
   return get_infinite(p_lprec);
 }
 
+void LpsolveSolver::set_time_limit(double secs)
+{
+  set_timeout(p_lprec, (long) std::ceil(secs));
+}
+
 void LpsolveSolver::dump(std::string const& filename) const
 {
   std::string ext = filename.substr(filename.size()-3);

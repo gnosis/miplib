@@ -70,6 +70,8 @@ struct Expr
     return p_impl->m_constant;
   }
 
+  double is_zero() const;
+
   // coefficients of linear part
   std::vector<double> linear_coeffs() const;
 

@@ -10,11 +10,18 @@ GurobiVar::GurobiVar(Solver const& solver, GRBVar const& v): m_solver(solver), m
 
 void GurobiVar::update_solver_if_pending() const
 {
-  static_cast<GurobiSolver const&>(*m_solver.p_impl).update_if_pending();
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+  if (!gurobi_solver.is_in_callback())
+    gurobi_solver.update_if_pending();
 }
 
 double GurobiVar::value() const
 {
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+
+  if (gurobi_solver.is_in_callback())
+    return gurobi_solver.p_callback->value(*this);
+
   update_solver_if_pending();
   return m_var.get(GRB_DoubleAttr_X);
 }
@@ -47,8 +54,13 @@ std::optional<std::string> GurobiVar::name() const
 
 void GurobiVar::set_name(std::string const& new_name)
 {
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+  
+  if (gurobi_solver.is_in_callback())
+    throw std::logic_error("Operation not allowed within callback.");
+
   m_var.set(GRB_StringAttr_VarName, new_name);
-  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+  gurobi_solver.set_pending_update();  
 }
 
 double GurobiVar::lb() const
@@ -69,14 +81,24 @@ double GurobiVar::ub() const
 
 void GurobiVar::set_lb(double new_lb)
 {
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+  
+  if (gurobi_solver.is_in_callback())
+    throw std::logic_error("Operation not allowed within callback.");
+
   m_var.set(GRB_DoubleAttr_LB, new_lb);
-  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+  gurobi_solver.set_pending_update();  
 }
 
 void GurobiVar::set_ub(double new_ub)
 {
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+  
+  if (gurobi_solver.is_in_callback())
+    throw std::logic_error("Operation not allowed within callback.");
+
   m_var.set(GRB_DoubleAttr_UB, new_ub);
-  static_cast<GurobiSolver const&>(*m_solver.p_impl).set_pending_update();  
+  gurobi_solver.set_pending_update();  
 }
 
 }  // namespace miplib

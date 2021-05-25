@@ -159,6 +159,11 @@ double Solver::infinity() const
   return p_impl->infinity();
 }
 
+void Solver::set_time_limit(double secs)
+{
+  p_impl->set_time_limit(secs);
+}
+
 bool Solver::supports_backend(Backend const& backend)
 {
   switch (backend)

@@ -6,6 +6,19 @@
 
 namespace miplib {
 
+namespace detail {
+struct GurobiCurrentStateHandle : GRBCallback, ICurrentStateHandle
+{
+  GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr);
+  double value(IVar const& var) const;
+  void add_lazy(Constr const& constr);
+  void callback();
+  bool is_active() const { return m_active; }
+  LazyConstrHandler m_constr_hdlr;
+  bool m_active;
+};
+}
+
 struct GurobiSolver : detail::ISolver
 {
   GurobiSolver();
@@ -53,12 +66,16 @@ struct GurobiSolver : detail::ISolver
 
   double infinity() const;
 
+  void set_time_limit(double secs);
+
   void dump(std::string const& filename) const;
 
+  bool is_in_callback() const;
+  
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;
-  std::unique_ptr<GRBCallback> p_callback;
+  std::unique_ptr<detail::GurobiCurrentStateHandle> p_callback;
 };
 
 }  // namespace miplib

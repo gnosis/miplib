@@ -162,23 +162,24 @@ TEMPLATE_TEST_CASE_SIG(
 
   struct Handler : ILazyConstrHandler
   {
-    Handler(Var const& v1, Var const& v2) : 
-      m_v1(v1), m_v2(v2) {}
+    Handler(Solver const& solver, Var const& v1, Var const& v2) : 
+      m_solver(solver), m_v1(v1), m_v2(v2) {}
     std::vector<Var> depends() const
     {
       return {m_v1, m_v2};
     }
-    bool is_feasible(ICurrentStateHandle const& s)
+    bool is_feasible()
     {
-      return ((int)s.value(m_v1)) != ((int)s.value(m_v2));
+      return (m_v1.value_as<int>() != m_v2.value_as<int>());
     }
-    bool add(ICurrentStateHandle& s)
+    bool add()
     {
-      if (s.value(m_v1) != s.value(m_v2))
+      if (m_v1.value_as<int>() != m_v2.value_as<int>())
         return false;
-      s.add_lazy(m_v1 + m_v2 == 1);
+      m_solver.add(m_v1 + m_v2 == 1);
       return true;
     }
+    Solver m_solver;
     Var m_v1;
     Var m_v2;
   };
@@ -192,7 +193,7 @@ TEMPLATE_TEST_CASE_SIG(
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
 
-    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(v1, v2)));
+    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)));
 
     auto [r, has_solution] = solver.maximize(v1);
     REQUIRE(r == Solver::Result::Optimal);
@@ -208,7 +209,7 @@ TEMPLATE_TEST_CASE_SIG(
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
 
-    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(v1, v2)));
+    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)));
 
     auto [r, has_solution] = solver.minimize(v1);
     REQUIRE(r == Solver::Result::Optimal);

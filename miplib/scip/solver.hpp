@@ -7,6 +7,21 @@
 namespace miplib {
 
 struct LazyConstrHandler;
+struct ScipSolver;
+
+namespace detail {
+struct ScipCurrentStateHandle : ICurrentStateHandle
+{
+  ScipCurrentStateHandle(ScipSolver& solver, SCIP_SOL* ap_sol);
+  double value(IVar const& var) const;
+  void add_lazy(Constr const& constr);
+  bool is_active() const { return m_active; }
+
+  ScipSolver& m_solver;
+  SCIP_SOL* p_sol;
+  bool m_active;
+};
+}
 
 struct ScipSolver : detail::ISolver
 {
@@ -57,9 +72,14 @@ struct ScipSolver : detail::ISolver
 
   void dump(std::string const& filename) const;
 
+  void set_time_limit(double secs);
+
+  bool is_in_callback() const;
+
   SCIP* p_env;
   SCIP_SOL* p_sol;
   Var* p_aux_obj_var;
+  std::unique_ptr<detail::ScipCurrentStateHandle> p_current_state_handler;
 };
 
 }  // namespace miplib

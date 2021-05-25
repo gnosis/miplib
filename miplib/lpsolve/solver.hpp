@@ -53,6 +53,8 @@ struct LpsolveSolver : detail::ISolver
 
   double infinity() const;
 
+  void set_time_limit(double secs);
+
   void dump(std::string const& filename) const;
 
   lprec* p_lprec;
