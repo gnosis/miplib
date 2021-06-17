@@ -26,6 +26,8 @@ struct ExprImpl
   ExprImpl& operator*=(ExprImpl const& e);
   ExprImpl& operator/=(double c);
 
+  ExprImpl& div_by_nonzero(Var const& v);
+
   Solver const& solver() const;
 
   std::unordered_map<Var, double> m_linear;
@@ -174,6 +176,13 @@ struct Expr
   }
 
   Expr operator/(Expr const& e) const;
+
+  // divides expression by v (assumes v != 0)
+  Expr& div_by_nonzero(Var const& v)
+  {
+    p_impl->div_by_nonzero(v);
+    return *this;
+  }
 
   double lb() const;
   double ub() const;

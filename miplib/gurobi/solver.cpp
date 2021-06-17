@@ -318,6 +318,16 @@ void GurobiSolver::set_feasibility_tolerance(double value)
   model.set(GRB_DoubleParam_FeasibilityTol, value);
 }
 
+double GurobiSolver::get_int_feasibility_tolerance() const
+{
+  return model.get(GRB_DoubleParam_IntFeasTol);
+}
+
+double GurobiSolver::get_feasibility_tolerance() const
+{
+  return model.get(GRB_DoubleParam_FeasibilityTol);
+}
+
 std::pair<Solver::Result, bool> GurobiSolver::solve()
 {
   auto nr_sols_before = model.get(GRB_IntAttr_SolCount);

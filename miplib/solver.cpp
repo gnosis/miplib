@@ -139,6 +139,16 @@ void Solver::set_int_feasibility_tolerance(double value)
   p_impl->set_int_feasibility_tolerance(value);
 }
 
+double Solver::get_int_feasibility_tolerance() const
+{
+  return p_impl->get_int_feasibility_tolerance();
+}
+
+double Solver::get_feasibility_tolerance() const
+{
+  return p_impl->get_feasibility_tolerance();
+}
+
 bool Solver::supports_indicator_constraint(IndicatorConstr const& constr) const
 {
   return p_impl->supports_indicator_constraint(constr); 

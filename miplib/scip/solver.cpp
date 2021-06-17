@@ -386,8 +386,6 @@ void ScipSolver::set_verbose(bool value)
 
 void ScipSolver::set_feasibility_tolerance(double value)
 {
-  SCIP_CALL_EXC(SCIPprintStage(p_env, stdout));
-  fflush(stdout);
   SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
   //SCIPsetLPFeastol(p_env, value);
 }
@@ -396,6 +394,16 @@ void ScipSolver::set_int_feasibility_tolerance(double value)
 {
   SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
   //SCIPsetLPFeastol(p_env, value);
+}
+
+double ScipSolver::get_int_feasibility_tolerance() const
+{
+  return SCIPfeastol(p_env);
+}
+
+double ScipSolver::get_feasibility_tolerance() const
+{
+ return SCIPfeastol(p_env);
 }
 
 double ScipSolver::infinity() const

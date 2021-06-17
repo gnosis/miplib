@@ -59,6 +59,9 @@ struct ScipSolver : detail::ISolver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
 
+  double get_int_feasibility_tolerance() const;
+  double get_feasibility_tolerance() const;
+
   void set_verbose(bool value);
 
   SCIP_CONS* as_scip_constr(Constr const& constr);

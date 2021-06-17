@@ -197,6 +197,16 @@ void LpsolveSolver::set_feasibility_tolerance(double value)
   set_epsel(p_lprec, value);
 }
 
+double LpsolveSolver::get_int_feasibility_tolerance() const
+{
+  return get_epsint(p_lprec);
+}
+
+double LpsolveSolver::get_feasibility_tolerance() const
+{
+ return get_epsb(p_lprec);
+}
+
 void LpsolveSolver::set_verbose(bool value)
 {
   if (value)

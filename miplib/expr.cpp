@@ -246,6 +246,60 @@ ExprImpl& ExprImpl::operator/=(double c)
   return *this *= 1 / c;
 }
 
+// divides expression by v (assumes v != 0)
+ExprImpl& ExprImpl::div_by_nonzero(Var const& v)
+{
+  // (a x y + b x z + c x + d y + e) / x -> a y + b z + c + d y / x + e / x
+
+  if (m_constant != 0 or (m_linear.size() > 0 and m_linear.size() != 1))
+    throw std::logic_error(
+      fmt::format("Attempt to create fractional expression {} / {}.", *this, v)
+    );
+
+  if (m_linear.size() == 1)
+  {
+    auto& [v1, c1] = *m_linear.begin();
+    if (v1.is_same(v))
+    {
+      m_constant += c1;
+      m_linear.clear();
+    }
+    else
+      throw std::logic_error(
+        fmt::format("Attempt to create fractional expression {} / {}.", *this, v)
+      );
+  }
+
+  for (auto it = m_quad.begin(); it != m_quad.end(); )
+    if (it->first.first.is_same(v))
+    {
+      auto lit = m_linear.find(it->first.second);
+      if (lit == m_linear.end())
+        m_linear.insert({it->first.second, it->second});
+      else
+        lit->second += it->second;
+
+      m_quad.erase(it++);
+    }
+    else
+    if (it->first.second.is_same(v))
+    {
+      auto lit = m_linear.find(it->first.first);
+      if (lit == m_linear.end())
+        m_linear.insert({it->first.first, it->second});
+      else
+        lit->second += it->second;
+
+      m_quad.erase(it++);
+    }
+    else
+      throw std::logic_error(
+        fmt::format("Attempt to create fractional expression {} / {}.", *this, v)
+      );
+
+  return *this;
+}
+
 
 std::ostream& operator<<(std::ostream& os, ExprImpl const& e)
 {

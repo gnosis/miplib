@@ -42,6 +42,9 @@ struct LpsolveSolver : detail::ISolver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
 
+  double get_int_feasibility_tolerance() const;
+  double get_feasibility_tolerance() const;
+
   void set_verbose(bool value);
 
   std::vector<int> get_col_idxs(std::vector<Var> const& vars);
