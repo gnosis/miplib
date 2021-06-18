@@ -60,6 +60,8 @@ struct LpsolveSolver : detail::ISolver
 
   void dump(std::string const& filename) const;
 
+  void set_warm_start(PartialSolution const& partial_solution);
+
   lprec* p_lprec;
   std::vector<double> m_last_solution;
 };

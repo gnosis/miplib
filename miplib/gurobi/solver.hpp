@@ -75,6 +75,8 @@ struct GurobiSolver : detail::ISolver
 
   bool is_in_callback() const;
   
+  void set_warm_start(PartialSolution const& partial_solution);
+
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;

@@ -217,3 +217,4 @@ TEMPLATE_TEST_CASE_SIG(
     REQUIRE(v1.value() + v2.value() == 1);
   }
 }
+

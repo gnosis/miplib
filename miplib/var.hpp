@@ -151,3 +151,4 @@ struct hash<miplib::Var>
   }
 };
 }  // namespace boost
+

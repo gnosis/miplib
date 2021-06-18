@@ -240,5 +240,9 @@ void LpsolveSolver::dump(std::string const& filename) const
     );
 }
 
+void LpsolveSolver::set_warm_start(PartialSolution const& /*partial_solution*/)
+{
+  throw std::logic_error("Lpsolve does not support warm starts.");
+}
 
 }  // namespace miplib

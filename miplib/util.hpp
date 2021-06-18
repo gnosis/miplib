@@ -89,3 +89,10 @@ struct equal_to<miplib::VarPair>
 };
 
 }  // namespace std
+
+
+namespace miplib {
+
+typedef std::unordered_map<Var, double> PartialSolution;
+
+}

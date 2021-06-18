@@ -26,6 +26,8 @@ struct GurobiVar : detail::IVar
   void set_lb(double new_lb);
   void set_ub(double new_ub);
 
+  void set_start_value(double v);
+
   Solver m_solver;
   GRBVar m_var;
 };

@@ -389,6 +389,18 @@ bool GurobiSolver::is_in_callback() const
   return p_callback and p_callback->is_active();
 }
 
+void GurobiSolver::set_warm_start(PartialSolution const& partial_solution)
+{
+  if (is_in_callback())
+    throw std::logic_error("Cannot add warm start from callback.");
+
+  for (auto const& [var, val]: partial_solution)
+  {
+    auto& m_var = const_cast<GRBVar&>(static_cast<GurobiVar const&>(*var.p_impl).m_var);
+    m_var.set(GRB_DoubleAttr_Start, val);
+  }
+}
+
 namespace detail {
 
 GurobiCurrentStateHandle::GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr) :

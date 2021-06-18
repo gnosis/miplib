@@ -75,6 +75,8 @@ struct Solver
 
   void set_time_limit(double secs);
 
+  void set_warm_start(PartialSolution const& partial_solution);
+
   private:
   std::shared_ptr<detail::ISolver> p_impl;
   const Backend m_backend;
@@ -142,6 +144,8 @@ struct ISolver
   virtual void set_time_limit(double secs) = 0;
 
   virtual void dump(std::string const& filename) const = 0;
+
+  virtual void set_warm_start(PartialSolution const& partial_solution) = 0;
 
   Solver::IndicatorConstraintPolicy m_indicator_constraint_policy = 
     Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported;

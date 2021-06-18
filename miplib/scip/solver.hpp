@@ -79,6 +79,8 @@ struct ScipSolver : detail::ISolver
 
   bool is_in_callback() const;
 
+  void set_warm_start(PartialSolution const& partial_solution);
+
   SCIP* p_env;
   SCIP_SOL* p_sol;
   Var* p_aux_obj_var;
