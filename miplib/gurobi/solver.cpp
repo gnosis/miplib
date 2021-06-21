@@ -284,6 +284,23 @@ void GurobiSolver::add(IndicatorConstr const& constr)
       bin_var, bin_val, implicand_expr, sense, 0, name.value_or(""));
 }
 
+void GurobiSolver::remove(Constr const& constr)
+{
+  if (std::dynamic_pointer_cast<GurobiLinConstr>(constr.p_impl))
+  {
+    auto const& c = static_cast<GurobiLinConstr const&>(*constr.p_impl);
+    model.remove(c.m_constr.value());
+  }
+  else
+  if (std::dynamic_pointer_cast<GurobiQuadConstr>(constr.p_impl))
+  {
+    auto const& c = static_cast<GurobiQuadConstr const&>(*constr.p_impl);
+    model.remove(c.m_constr.value());
+  }
+  else
+    assert(false);
+}
+
 void GurobiSolver::set_non_convex_policy(Solver::NonConvexPolicy policy)
 {
   switch (policy)

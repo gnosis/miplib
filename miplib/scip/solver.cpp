@@ -327,6 +327,12 @@ void ScipSolver::add(IndicatorConstr const& constr)
   }
 }
 
+void ScipSolver::remove(Constr const& constr)
+{
+  auto p_scip_constr = static_cast<ScipConstr const&>(*constr.p_impl).p_constr;
+  SCIP_CALL_EXC(SCIPdelCons(p_env, p_scip_constr));
+}
+
 std::pair<Solver::Result, bool> ScipSolver::solve()
 {
   auto nr_sols_before = SCIPgetNRuns(p_env) == 0 ? 0 : SCIPgetNBestSolsFound(p_env);

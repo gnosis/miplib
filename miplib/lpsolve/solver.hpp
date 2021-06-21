@@ -33,6 +33,9 @@ struct LpsolveSolver : detail::ISolver
 
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
+
+  void remove(Constr const& constr);
+
   void set_lazy_constr_handler(LazyConstrHandler const&) { throw std::logic_error("Not implemented yet."); }
 
   std::pair<Solver::Result, bool> solve();

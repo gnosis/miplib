@@ -41,6 +41,9 @@ struct Solver
   // note: if scale=true then the constraint will be first
   // reformulated to a linear expression and then scaled.
   void add(IndicatorConstr const& constr, bool scale = false);
+
+  void remove(Constr const& constr);
+
   void set_lazy_constr_handler(LazyConstrHandler const& constr_handler);
 
   void set_non_convex_policy(NonConvexPolicy policy);
@@ -120,6 +123,8 @@ struct ISolver
   virtual void set_objective(Solver::Sense const& sense, Expr const& e) = 0;
   virtual void add(Constr const& constr) = 0;
   virtual void add(IndicatorConstr const& constr) = 0;
+
+  virtual void remove(Constr const& constr) = 0;
 
   virtual void set_lazy_constr_handler(LazyConstrHandler const& constr) = 0;
   virtual std::pair<Solver::Result, bool> solve() = 0;

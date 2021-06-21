@@ -218,3 +218,37 @@ TEMPLATE_TEST_CASE_SIG(
   }
 }
 
+TEMPLATE_TEST_CASE_SIG(
+  "Solver remove constraints", "[miplib]",
+  ((miplib::Solver::Backend Backend), Backend),
+  miplib::Solver::Backend::Gurobi,
+  miplib::Solver::Backend::Scip
+)
+{
+  using namespace miplib;
+
+  if (!Solver::supports_backend(Backend))
+    return;
+
+  Solver solver(Backend);
+  solver.set_verbose(false);
+
+  Var v1(solver, Var::Type::Integer, 1, 2, "v1");
+  Var v2(solver, Var::Type::Integer, 1, 2, "v2");
+
+  SECTION("Test remove constraint")
+  {
+    auto c1 = v1 <= 1;
+    auto c2 = v2 <= 1;
+    solver.add(c1);
+    solver.add(c2);
+    auto [r, has_solution] = solver.maximize(v1 + v2);    
+    
+    REQUIRE(r == Solver::Result::Optimal);
+    REQUIRE(has_solution);
+
+    solver.remove(c1);
+    std::tie(r, has_solution) = solver.maximize(v1 + v2);    
+    REQUIRE(v1.value() == 2);
+  }
+}

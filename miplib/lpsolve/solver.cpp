@@ -128,6 +128,12 @@ void LpsolveSolver::add(IndicatorConstr const&)
   throw std::logic_error("Lpsolve does not support indicator constraints.");
 }
 
+void LpsolveSolver::remove(Constr const&)
+{
+  // TODO: removing a constraint changes other constraints idxs, 
+  // meaning we need to keep track of them and update them accordingly.
+  throw std::logic_error("Not implemented yet.");
+}
 
 std::pair<Solver::Result, bool> LpsolveSolver::solve()
 {
