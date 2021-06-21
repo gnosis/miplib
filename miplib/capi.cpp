@@ -44,9 +44,23 @@ Solver::Backend convert_backend(miplib_SolverBackend backend)
   throw std::logic_error("Unsupported backend.");
 }
 
+Var::Type convert_var_type(miplib_VarType type)
+{
+  switch (type)
+  {
+    case miplib_VarType::Continuous:
+      return Var::Type::Continuous;
+    case miplib_VarType::Binary:
+      return Var::Type::Binary;
+    case miplib_VarType::Integer:
+      return Var::Type::Integer;
+  }
+  throw std::logic_error("Unsupported var type.");
+}
+
 extern "C" {
 
-char const* get_last_error()
+char const* miplib_get_last_error()
 {
   return last_error.c_str();
 }
@@ -62,6 +76,34 @@ int miplib_destroy_solver(Solver* p_solver)
 {
   BEGIN
   delete p_solver;
+  END
+}
+
+int miplib_shallow_copy_solver(miplib::Solver** rp_solver, miplib::Solver* p_solver)
+{
+  BEGIN
+  *rp_solver = new Solver(*p_solver);
+  END
+}
+
+int miplib_create_var(miplib::Var** rp_var, miplib::Solver* p_solver, miplib_VarType type)
+{
+  BEGIN
+  *rp_var = new miplib::Var(*p_solver, convert_var_type(type));
+  END
+}
+
+int miplib_destroy_var(miplib::Var* p_var)
+{
+  BEGIN
+  delete p_var;
+  END
+}
+
+int miplib_shallow_copy_var(miplib::Var** rp_var, miplib::Var* p_var)
+{
+  BEGIN
+  *rp_var = new Var(*p_var);
   END
 }
 

@@ -13,6 +13,7 @@ set(SOURCE_FILES
   var.cpp
   constr.cpp
   solver.cpp
+  capi.cpp
 )
 
 # Optional dependency: Gurobi.
@@ -120,12 +121,3 @@ target_compile_options(${PROJECT_NAME} PUBLIC ${COMPILE_FLAGS})
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
-
-# C bindings
-
-# Define the output library to be a static file (.a) and output it as "(lib)miplib_c.a"
-add_library(${PROJECT_NAME}_c STATIC capi.cpp)
-set_target_properties(${PROJECT_NAME}_c PROPERTIES COMPILE_FLAGS "-fPIC" )
-target_compile_options(${PROJECT_NAME}_c PUBLIC ${COMPILE_FLAGS})
-target_include_directories(${PROJECT_NAME}_c PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_link_libraries(${PROJECT_NAME}_c ${PROJECT_NAME})
