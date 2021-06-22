@@ -329,6 +329,9 @@ void ScipSolver::add(IndicatorConstr const& constr)
 
 void ScipSolver::remove(Constr const& constr)
 {
+  if(SCIPgetStage(p_env) == SCIP_STAGE_SOLVED)
+    SCIP_CALL_EXC(SCIPfreeTransform(p_env));
+ 
   auto p_scip_constr = static_cast<ScipConstr const&>(*constr.p_impl).p_constr;
   SCIP_CALL_EXC(SCIPdelCons(p_env, p_scip_constr));
 }
