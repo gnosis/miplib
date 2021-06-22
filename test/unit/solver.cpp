@@ -221,8 +221,8 @@ TEMPLATE_TEST_CASE_SIG(
 TEMPLATE_TEST_CASE_SIG(
   "Solver remove constraints", "[miplib]",
   ((miplib::Solver::Backend Backend), Backend),
-  miplib::Solver::Backend::Gurobi/*,
-  miplib::Solver::Backend::Scip*/ // FIXME: scip is not working yet
+  miplib::Solver::Backend::Gurobi,
+  miplib::Solver::Backend::Scip
 )
 {
   using namespace miplib;

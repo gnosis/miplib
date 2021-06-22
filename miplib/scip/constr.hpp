@@ -18,7 +18,12 @@ struct ScipConstr : detail::IConstr
   {
     if (p_constr == nullptr)
       return;
+
     auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
+
+    if(SCIPgetStage(p_env) != SCIP_STAGE_PROBLEM)
+      SCIP_CALL_EXC(SCIPfreeTransform(p_env));
+
     SCIP_CALL_EXC(SCIPreleaseCons(p_env, &p_constr));
   }
 
