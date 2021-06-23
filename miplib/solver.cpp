@@ -223,4 +223,25 @@ void ISolver::set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy 
 }
 
 }
+
+std::ostream& operator<<(std::ostream& os, Solver::Backend const& solver_backend)
+{
+  switch (solver_backend)
+  {
+    case Solver::Backend::Any:
+      os << "Any";
+      break;
+    case Solver::Backend::Scip:
+      os << "Scip";
+      break;
+    case Solver::Backend::Gurobi:
+      os << "Gurobi";
+      break;
+    case Solver::Backend::Lpsolve:
+      os << "Lpsolve";
+      break;
+  }
+  return os;
+}
+
 }  // namespace miplib

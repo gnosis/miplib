@@ -158,4 +158,6 @@ struct ISolver
 
 }  // namespace detail
 
+std::ostream& operator<<(std::ostream& os, Solver::Backend const& solver_backend);
+
 }  // namespace miplib
