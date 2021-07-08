@@ -70,6 +70,8 @@ if (SCIP_INCLUDE_DIR AND SCIP_C_LIBRARY)
 include_directories(${SCIP_INCLUDE_DIR})
 
 set(SOURCE_FILES ${SOURCE_FILES} scip/solver.cpp scip/var.cpp)
+# Compiling SCIP headers issue a lot of unused parameters. Disabling those warnings for these files.
+set_source_files_properties(scip/solver.cpp scip/var.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 set(LIBS ${LIBS} ${SCIP_C_LIBRARY})
 add_definitions(-DWITH_SCIP)
 

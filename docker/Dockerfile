@@ -12,28 +12,23 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     wget libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 lp-solve \
     build-essential cmake g++-9 libgmp-dev libblas-dev libbliss-dev zlib1g-dev libgsl-dev libcliquer-dev \
+    libreadline-dev git ca-certificates ssh liblpsolve55-dev \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt
 
 # Install SCIP solver
-RUN wget https://scip.zib.de/download/release/scipoptsuite-7.0.1.tgz --no-check-certificate  \
-  && tar -xzvf scipoptsuite-7.0.1.tgz \
-  && cd scipoptsuite-7.0.1 \
-  && mkdir build \
-  && cd build \
-  && cmake .. \
-  && make \
-  && make install \
-  && cd ../.. \
-  && rm -fr scipoptsuite-7.0.1
+RUN wget https://scip.zib.de/download/release/SCIPOptSuite-7.0.3-Linux-ubuntu.sh --no-check-certificate && \
+  chmod +x ./SCIPOptSuite-7.0.3-Linux-ubuntu.sh && \
+ ./SCIPOptSuite-7.0.3-Linux-ubuntu.sh --skip-license
 
 # Install Gurobi solver
-RUN wget --no-check-certificate https://packages.gurobi.com/9.1/gurobi9.1.0_linux64.tar.gz \
-  && tar xzf gurobi9.1.0_linux64.tar.gz
+RUN wget --no-check-certificate https://packages.gurobi.com/9.1/gurobi9.1.1_linux64.tar.gz \
+  && tar xzf gurobi9.1.1_linux64.tar.gz
 
-ENV GUROBI_DIR="/opt/gurobi910/linux64"
+ENV GUROBI_DIR="/opt/gurobi911/linux64"
 
-# TODO: install this package in the beginning like the others
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends git ca-certificates ssh liblpsolve55-dev
+RUN cd $GUROBI_DIR/src/build && \
+  make && \
+  mv libgurobi_c++.a ../../lib && \
+  cd /opt
