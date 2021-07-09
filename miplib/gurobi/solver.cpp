@@ -477,6 +477,16 @@ void GurobiSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
   model.setCallback(p_callback.get());
 }
 
+std::string GurobiSolver::backend_info()
+{
+  return fmt::format(
+    "Gurobi {}.{}.{}",
+    GRB_VERSION_MAJOR,
+    GRB_VERSION_MINOR,
+    GRB_VERSION_TECHNICAL
+  );
+}
+
 }  // namespace miplib
 
 #pragma GCC diagnostic pop

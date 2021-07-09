@@ -24,10 +24,10 @@ find_path(GUROBI_INCLUDE_DIR
 
 find_library(GUROBI_C_LIBRARY
   NAMES gurobi
-  gurobi90
-  libgurobi90.so
   gurobi91
   libgurobi91.so
+  gurobi90
+  libgurobi90.so
   PATHS "${GUROBI}/lib"
 )
 
@@ -71,7 +71,7 @@ include_directories(${SCIP_INCLUDE_DIR})
 
 set(SOURCE_FILES ${SOURCE_FILES} scip/solver.cpp scip/var.cpp)
 # Compiling SCIP headers issue a lot of unused parameters. Disabling those warnings for these files.
-set_source_files_properties(scip/solver.cpp scip/var.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+#set_source_files_properties(scip/solver.cpp scip/var.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 set(LIBS ${LIBS} ${SCIP_C_LIBRARY})
 add_definitions(-DWITH_SCIP)
 

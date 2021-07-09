@@ -80,6 +80,8 @@ struct Solver
 
   void set_warm_start(PartialSolution const& partial_solution);
 
+  static std::vector<std::string> backend_info();
+
   private:
   std::shared_ptr<detail::ISolver> p_impl;
   const Backend m_backend;

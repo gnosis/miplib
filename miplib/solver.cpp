@@ -216,6 +216,24 @@ void Solver::set_warm_start(PartialSolution const& partial_solution)
   p_impl->set_warm_start(partial_solution);
 }
 
+std::vector<std::string> Solver::backend_info()
+{
+  std::vector<std::string> r;
+  #ifdef WITH_GUROBI
+  if (supports_backend(Solver::Backend::Gurobi))
+    r.push_back(GurobiSolver::backend_info());
+  #endif
+  #ifdef WITH_SCIP
+  if (supports_backend(Solver::Backend::Scip))
+    r.push_back(ScipSolver::backend_info());
+  #endif
+  #ifdef WITH_LPSOLVE
+  if (supports_backend(Solver::Backend::Lpsolve))
+    r.push_back(LpsolveSolver::backend_info());
+  #endif
+  return r;
+}
+
 namespace detail {
 void ISolver::set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy)
 {

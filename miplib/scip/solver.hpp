@@ -3,7 +3,6 @@
 #include <miplib/solver.hpp>
 
 #include <scip/scip.h>
-
 namespace miplib {
 
 struct LazyConstrHandler;
@@ -82,6 +81,8 @@ struct ScipSolver : detail::ISolver
   bool is_in_callback() const;
 
   void set_warm_start(PartialSolution const& partial_solution);
+
+  static std::string backend_info();
 
   SCIP* p_env;
   SCIP_SOL* p_sol;

@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <miplib/scip/solver.hpp>
 #include <miplib/scip/util.hpp>
 
@@ -566,4 +569,14 @@ void ScipSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
   SCIP_CALL_EXC(SCIPincludeObjConshdlr(p_env, new ScipConstraintHandler(*this, constr_hdlr), true));
 }
 
+std::string ScipSolver::backend_info()
+{
+  return fmt::format(
+    "SCIP {}",
+    SCIP_VERSION/100.0
+  );
+}
+
 }  // namespace miplib
+
+#pragma GCC diagnostic pop
