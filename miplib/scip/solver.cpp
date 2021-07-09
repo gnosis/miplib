@@ -468,7 +468,19 @@ double ScipCurrentStateHandle::value(IVar const& var) const
 
 void ScipCurrentStateHandle::add_lazy(Constr const& constr)
 {
-  m_solver.add(constr);
+  auto const& constr_impl = static_cast<ScipConstr const&>(*constr.p_impl);
+
+  if (constr_impl.p_constr != nullptr)
+  {
+    throw std::logic_error("Attempt to post the same constraint twice.");
+  }
+
+  SCIP_CONS* p_constr = m_solver.as_scip_constr(constr);
+
+  // add the constraint to scip
+  SCIP_CALL_EXC(SCIPaddCons(m_solver.p_env, p_constr));
+
+  constr_impl.p_constr = p_constr;
 }
 
 } // namespace detail

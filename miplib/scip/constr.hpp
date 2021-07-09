@@ -21,7 +21,8 @@ struct ScipConstr : detail::IConstr
 
     auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
 
-    if(SCIPgetStage(p_env) != SCIP_STAGE_PROBLEM)
+    auto scip_stage = SCIPgetStage(p_env);
+    if(scip_stage != SCIP_STAGE_PROBLEM and scip_stage != SCIP_STAGE_SOLVING)
       SCIP_CALL_EXC(SCIPfreeTransform(p_env));
 
     SCIP_CALL_EXC(SCIPreleaseCons(p_env, &p_constr));

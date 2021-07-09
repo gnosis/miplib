@@ -14,6 +14,8 @@ static double constexpr MAX_MAX_ABS_SKIP_SCALE = 1e4;
 namespace detail {
 struct IConstr;
 struct IIndicatorConstr;
+struct GurobiCurrentStateHandle;
+struct ScipCurrentStateHandle;
 }  // namespace detail
 
 // Linear or quadratic constraint.
@@ -49,7 +51,8 @@ struct Constr
   friend struct GurobiSolver;
   friend struct ScipSolver;
   friend struct LpsolveSolver;
-  friend struct GurobiCurrentStateHandle;
+  friend struct detail::GurobiCurrentStateHandle;
+  friend struct detail::ScipCurrentStateHandle;
 };
 
 Constr operator!(Expr const& e);
