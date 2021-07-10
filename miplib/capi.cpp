@@ -38,8 +38,10 @@ Solver::Backend convert_backend(miplib_SolverBackend backend)
       return Solver::Backend::Scip;
     case miplib_SolverBackend::Lpsolve:
       return Solver::Backend::Lpsolve;
-    case miplib_SolverBackend::Any:
-      return Solver::Backend::Any;
+    case miplib_SolverBackend::BestAtCompileTime:
+      return Solver::Backend::BestAtCompileTime;
+    case miplib_SolverBackend::BestAtRunTime:
+      return Solver::Backend::BestAtRunTime;
   }
   throw std::logic_error("Unsupported backend.");
 }

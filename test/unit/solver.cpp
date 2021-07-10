@@ -18,8 +18,11 @@ TEMPLATE_TEST_CASE_SIG(
 {
   using namespace miplib;
 
-  if (!Solver::supports_backend(Backend))
+  if (!Solver::backend_is_available(Backend))
+  {
+    WARN(fmt::format("Skipped since {} is not available.", Backend));
     return;
+  }
 
   Solver solver(Backend);
   solver.set_verbose(false);
@@ -74,8 +77,11 @@ TEMPLATE_TEST_CASE_SIG(
 {
   using namespace miplib;
 
-  if (!Solver::supports_backend(Backend))
+  if (!Solver::backend_is_available(Backend))
+  {
+    WARN(fmt::format("Skipped since {} is not available.", Backend));
     return;
+  }
 
   Solver solver(Backend);
 
@@ -157,8 +163,11 @@ TEMPLATE_TEST_CASE_SIG(
 {
   using namespace miplib;
 
-  if (!Solver::supports_backend(Backend))
+  if (!Solver::backend_is_available(Backend))
+  {
+    WARN(fmt::format("Skipped since {} is not available.", Backend));
     return;
+  }
 
   struct Handler : ILazyConstrHandler
   {
@@ -227,8 +236,11 @@ TEMPLATE_TEST_CASE_SIG(
 {
   using namespace miplib;
 
-  if (!Solver::supports_backend(Backend))
+  if (!Solver::backend_is_available(Backend))
+  {
+    WARN(fmt::format("Skipped since {} is not available.", Backend));
     return;
+  }
 
   Solver solver(Backend);
   solver.set_verbose(false);

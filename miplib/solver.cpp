@@ -16,41 +16,65 @@ namespace miplib {
 
 Solver::Solver(Backend backend): m_backend(backend), m_constraint_autoscale(false)
 {
-  if (backend == Solver::Backend::Gurobi)
+  switch (backend)
   {
-    #ifdef WITH_GUROBI
-    p_impl = std::make_shared<GurobiSolver>();
-    #else
-    throw std::logic_error("Request for Gurobi backend but it was not compiled.");
-    #endif
-  }
-  else if (backend == Solver::Backend::Scip)
-  {
-    #ifdef WITH_SCIP
-    p_impl = std::make_shared<ScipSolver>();
-    #else
-    throw std::logic_error("Request for SCIP backend but it was not compiled.");
-    #endif
-  }
-  else if (backend == Solver::Backend::Lpsolve)
-  {
-    #ifdef WITH_LPSOLVE
-    p_impl = std::make_shared<LpsolveSolver>();
-    #else
-    throw std::logic_error("Request for Lpsolve backend but it was not compiled.");
-    #endif
-  }
-  else if (backend == Solver::Backend::Any)
-  {
-    #if defined(WITH_GUROBI)
-    p_impl = std::make_shared<GurobiSolver>();
-    #elif defined(WITH_SCIP)
-    p_impl = std::make_shared<ScipSolver>();
-    #elif defined(WITH_LPSOLVE)
-    p_impl = std::make_shared<LpsolveSolver>();
-    #else
-    throw std::logic_error("No MIP backends were compiled.");
-    #endif
+    case  Solver::Backend::Gurobi:
+      #ifdef WITH_GUROBI
+      p_impl = std::make_shared<GurobiSolver>();
+      return;
+      #else
+      throw std::logic_error("Request for Gurobi backend but it was not compiled.");
+      #endif
+    case Solver::Backend::Scip:
+      #ifdef WITH_SCIP
+      p_impl = std::make_shared<ScipSolver>();
+      return;
+      #else
+      throw std::logic_error("Request for SCIP backend but it was not compiled.");
+      #endif
+    case Solver::Backend::Lpsolve:
+      #ifdef WITH_LPSOLVE
+      p_impl = std::make_shared<LpsolveSolver>();
+      return;
+      #else
+      throw std::logic_error("Request for Lpsolve backend but it was not compiled.");
+      #endif
+    case Solver::Backend::BestAtCompileTime:
+      #if defined(WITH_GUROBI)
+      p_impl = std::make_shared<GurobiSolver>();
+      return;
+      #elif defined(WITH_SCIP)
+      p_impl = std::make_shared<ScipSolver>();
+      return;
+      #elif defined(WITH_LPSOLVE)
+      p_impl = std::make_shared<LpsolveSolver>();
+      return;
+      #else
+      throw std::logic_error("No MIP backends were compiled.");
+      #endif
+    case Solver::Backend::BestAtRunTime:
+      #if defined(WITH_GUROBI)
+      if (backend_is_available(Solver::Backend::Gurobi))
+      {
+        p_impl = std::make_shared<GurobiSolver>();
+        return;  
+      }
+      #endif
+      #if defined(WITH_SCIP)
+      if (backend_is_available(Solver::Backend::Scip))
+      {
+        p_impl = std::make_shared<ScipSolver>();
+        return;  
+      }
+      #endif
+      #if defined(WITH_LPSOLVE)
+      if (backend_is_available(Solver::Backend::Lpsolve))
+      {
+        p_impl = std::make_shared<LpsolveSolver>();
+        return;  
+      }
+      #endif
+      throw std::logic_error("No MIP backends are available.");
   }
 }
 
@@ -179,7 +203,7 @@ void Solver::set_time_limit(double secs)
   p_impl->set_time_limit(secs);
 }
 
-bool Solver::supports_backend(Backend const& backend)
+bool Solver::backend_is_compiled(Backend const& backend)
 {
   switch (backend)
   {
@@ -206,6 +230,21 @@ bool Solver::supports_backend(Backend const& backend)
   }
 }
 
+bool Solver::backend_is_available(Backend const& backend)
+{
+  if (!backend_is_compiled(backend))
+    return false;
+  try
+  {
+    Solver s(backend);
+  }
+  catch (...)
+  {
+    return false;
+  }
+  return true;
+}
+
 void Solver::dump(std::string const& filename) const
 {
   p_impl->dump(filename);
@@ -216,20 +255,20 @@ void Solver::set_warm_start(PartialSolution const& partial_solution)
   p_impl->set_warm_start(partial_solution);
 }
 
-std::vector<std::string> Solver::backend_info()
+std::map<Solver::Backend, std::string> Solver::backend_info()
 {
-  std::vector<std::string> r;
+  std::map<Backend, std::string> r;
   #ifdef WITH_GUROBI
-  if (supports_backend(Solver::Backend::Gurobi))
-    r.push_back(GurobiSolver::backend_info());
+  if (backend_is_compiled(Solver::Backend::Gurobi))
+    r[Solver::Backend::Gurobi] = GurobiSolver::backend_info();
   #endif
   #ifdef WITH_SCIP
-  if (supports_backend(Solver::Backend::Scip))
-    r.push_back(ScipSolver::backend_info());
+  if (backend_is_compiled(Solver::Backend::Scip))
+    r[Solver::Backend::Scip] = ScipSolver::backend_info();
   #endif
   #ifdef WITH_LPSOLVE
-  if (supports_backend(Solver::Backend::Lpsolve))
-    r.push_back(LpsolveSolver::backend_info());
+  if (backend_is_compiled(Solver::Backend::Lpsolve))
+    r[Solver::Backend::Lpsolve] = LpsolveSolver::backend_info();
   #endif
   return r;
 }
@@ -246,9 +285,6 @@ std::ostream& operator<<(std::ostream& os, Solver::Backend const& solver_backend
 {
   switch (solver_backend)
   {
-    case Solver::Backend::Any:
-      os << "Any";
-      break;
     case Solver::Backend::Scip:
       os << "Scip";
       break;
@@ -257,6 +293,12 @@ std::ostream& operator<<(std::ostream& os, Solver::Backend const& solver_backend
       break;
     case Solver::Backend::Lpsolve:
       os << "Lpsolve";
+      break;
+    case Solver::Backend::BestAtCompileTime:
+      os << "BestAtCompileTime";
+      break;
+    case Solver::Backend::BestAtRunTime:
+      os << "BestAtRunTime";
       break;
   }
   return os;

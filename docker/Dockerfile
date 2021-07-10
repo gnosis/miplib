@@ -18,9 +18,9 @@ RUN apt-get update \
 WORKDIR /opt
 
 # Install SCIP solver
-RUN wget https://scip.zib.de/download/release/SCIPOptSuite-7.0.3-Linux-ubuntu.sh --no-check-certificate && \
-  chmod +x ./SCIPOptSuite-7.0.3-Linux-ubuntu.sh && \
- ./SCIPOptSuite-7.0.3-Linux-ubuntu.sh --skip-license
+RUN wget https://scip.zib.de/download/release/SCIPOptSuite-7.0.2-Linux-ubuntu.sh --no-check-certificate && \
+  chmod +x ./SCIPOptSuite-7.0.2-Linux-ubuntu.sh && \
+ ./SCIPOptSuite-7.0.2-Linux-ubuntu.sh --skip-license
 
 # Install Gurobi solver
 RUN wget --no-check-certificate https://packages.gurobi.com/9.1/gurobi9.1.1_linux64.tar.gz \

@@ -6,7 +6,7 @@
 extern "C" {
 
 enum miplib_SolverBackend {
-  Gurobi = 0, Scip = 1, Lpsolve = 2, Any = 3
+  Gurobi = 0, Scip = 1, Lpsolve = 2, BestAtCompileTime = 3, BestAtRunTime = 4
 };
 
 enum class miplib_VarType { 

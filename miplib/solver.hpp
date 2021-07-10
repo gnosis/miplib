@@ -16,7 +16,7 @@ struct ISolver;
 
 struct Solver
 {
-  enum class Backend { Gurobi, Scip, Lpsolve, Any };
+  enum class Backend { Gurobi, Scip, Lpsolve, BestAtCompileTime, BestAtRunTime };
   enum class NonConvexPolicy { Error, Linearize, Branch };
   enum class IndicatorConstraintPolicy { PassThrough, Reformulate, ReformulateIfUnsupported };
   enum class Sense { Maximize, Minimize };
@@ -70,7 +70,13 @@ struct Solver
   bool supports_quadratic_constraints() const;
   bool supports_quadratic_objective() const;
 
-  static bool supports_backend(Backend const&);
+  // if backend was found at compile time
+  static bool backend_is_compiled(Backend const&);
+
+  // if backend is available for use at runtime time
+  // (a backend that is compiled may not be available
+  // due e.g. to expired license file)
+  static bool backend_is_available(Backend const&);
 
   double infinity() const;
 
@@ -80,7 +86,7 @@ struct Solver
 
   void set_warm_start(PartialSolution const& partial_solution);
 
-  static std::vector<std::string> backend_info();
+  static std::map<Backend, std::string> backend_info();
 
   private:
   std::shared_ptr<detail::ISolver> p_impl;
