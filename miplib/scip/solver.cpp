@@ -554,9 +554,12 @@ struct ScipConstraintHandler: scip::ObjConshdlr
 
   SCIP_DECL_CONSENFOPS(scip_enfops)
   {
-    // not sure about what to do here
-    assert(false);
-    return SCIP_OKAY;
+    CurrentStateHandlerGuard guard(m_solver, nullptr);
+    if (m_constr_hdlr.is_feasible())
+      *result = SCIP_FEASIBLE;
+    else
+      *result = SCIP_INFEASIBLE;
+    return SCIP_OKAY;    
   }
 
   SCIP_DECL_CONSLOCK(scip_lock)
