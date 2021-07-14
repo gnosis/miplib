@@ -12,17 +12,6 @@ Constr::Constr(
   p_impl(solver.p_impl->create_constr(type, e, name)
 )
 {
-  if (type == Type::Equal)
-  {
-    if (e.ub() < 0 or e.lb() > 0)
-      throw std::logic_error("Attempt to create a constraint that is trivially unsat.");
-  }
-  else
-  if (type == Type::LessEqual)
-  {
-    if (e.lb() > 0)
-      throw std::logic_error("Attempt to create a constraint that is trivially unsat.");
-  }
 }
 
 Expr Constr::expr() const

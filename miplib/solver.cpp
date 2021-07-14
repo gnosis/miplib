@@ -85,6 +85,9 @@ void Solver::set_objective(Sense const& sense, Expr const& e)
 
 void Solver::add(Constr const& constr, bool scale)
 {
+  if (constr.must_be_violated())
+    throw std::logic_error("Attempt to create a constraint that is trivially unsat.");
+
   if (scale or m_constraint_autoscale)
     p_impl->add(constr.scale());
   else
