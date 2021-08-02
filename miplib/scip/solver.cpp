@@ -592,6 +592,12 @@ std::string ScipSolver::backend_info()
   );
 }
 
+bool ScipSolver::is_available()
+{
+  // If scip is compiled then it is also available.
+  return true;
+}
+
 }  // namespace miplib
 
 #pragma GCC diagnostic pop

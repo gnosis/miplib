@@ -237,15 +237,29 @@ bool Solver::backend_is_available(Backend const& backend)
 {
   if (!backend_is_compiled(backend))
     return false;
-  try
+  switch (backend)
   {
-    Solver s(backend);
+    case  Solver::Backend::Gurobi:
+      #ifdef WITH_GUROBI
+      return GurobiSolver::is_available();
+      #else
+      return false;
+      #endif
+    case  Solver::Backend::Scip:
+      #ifdef WITH_SCIP
+      return ScipSolver::is_available();
+      #else
+      return false;
+      #endif
+    case  Solver::Backend::Lpsolve:
+      #ifdef WITH_LPSOLVE
+      return LpsolveSolver::is_available();
+      #else
+      return false;
+      #endif
+    default:
+      return false;
   }
-  catch (...)
-  {
-    return false;
-  }
-  return true;
 }
 
 void Solver::dump(std::string const& filename) const

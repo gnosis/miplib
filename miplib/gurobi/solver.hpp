@@ -81,6 +81,8 @@ struct GurobiSolver : detail::ISolver
 
   static std::string backend_info();
 
+  static bool is_available();
+
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;

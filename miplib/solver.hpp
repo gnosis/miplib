@@ -110,6 +110,8 @@ namespace detail {
 
 struct ISolver
 {
+  virtual ~ISolver() noexcept(false) {}
+
   virtual std::shared_ptr<detail::IVar> create_var(
     Solver const& solver,
     Var::Type const& type,

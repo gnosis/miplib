@@ -84,6 +84,8 @@ struct ScipSolver : detail::ISolver
 
   static std::string backend_info();
 
+  static bool is_available();
+
   SCIP* p_env;
   SCIP_SOL* p_sol;
   Var* p_aux_obj_var;

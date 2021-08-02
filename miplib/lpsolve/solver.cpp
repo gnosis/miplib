@@ -264,4 +264,10 @@ std::string LpsolveSolver::backend_info()
   );
 }
 
+bool LpsolveSolver::is_available()
+{
+  // If lpsolve is compiled then it is also available.
+  return true;
+}
+
 }  // namespace miplib

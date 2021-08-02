@@ -487,6 +487,23 @@ std::string GurobiSolver::backend_info()
   );
 }
 
+bool GurobiSolver::is_available()
+{
+  auto const APITYPE_CPP = 1;
+  GRBenv*  env = nullptr;
+  int  error = GRBloadenvadv(
+    &env, NULL, APITYPE_CPP, GRB_VERSION_MAJOR,
+    GRB_VERSION_MINOR, GRB_VERSION_TECHNICAL,
+    NULL, NULL, NULL, NULL, -9999999, -1,
+    NULL, NULL, NULL, NULL, NULL
+  );
+  if (env != nullptr)
+    GRBfreeenv(env);
+  if (error)
+    return false;
+  return true;
+}
+
 }  // namespace miplib
 
 #pragma GCC diagnostic pop

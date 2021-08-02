@@ -67,6 +67,8 @@ struct LpsolveSolver : detail::ISolver
 
   static std::string backend_info();
 
+  static bool is_available();
+
   lprec* p_lprec;
   std::vector<double> m_last_solution;
 };
