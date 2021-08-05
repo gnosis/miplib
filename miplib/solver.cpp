@@ -119,9 +119,9 @@ void Solver::remove(Constr const& constr)
   p_impl->remove(constr);
 }
 
-void Solver::set_lazy_constr_handler(LazyConstrHandler const& constr_handler)
+void Solver::add_lazy_constr_handler(LazyConstrHandler const& constr_handler, bool at_integral_only)
 {
-  p_impl->set_lazy_constr_handler(constr_handler);
+  p_impl->add_lazy_constr_handler(constr_handler, at_integral_only);
 }
 
 std::pair<Solver::Result, bool> Solver::solve()
@@ -169,6 +169,11 @@ void Solver::set_feasibility_tolerance(double value)
 void Solver::set_int_feasibility_tolerance(double value)
 {
   p_impl->set_int_feasibility_tolerance(value);
+}
+
+void Solver::set_epsilon(double value)
+{
+  p_impl->set_epsilon(value);
 }
 
 double Solver::get_int_feasibility_tolerance() const

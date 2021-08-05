@@ -202,7 +202,7 @@ TEMPLATE_TEST_CASE_SIG(
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
 
-    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)));
+    solver.add_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)), true);
 
     auto [r, has_solution] = solver.maximize(v1);
     REQUIRE(r == Solver::Result::Optimal);
@@ -218,7 +218,7 @@ TEMPLATE_TEST_CASE_SIG(
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
 
-    solver.set_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)));
+    solver.add_lazy_constr_handler(LazyConstrHandler(std::make_shared<Handler>(solver, v1, v2)), true);
 
     auto [r, has_solution] = solver.minimize(v1);
     REQUIRE(r == Solver::Result::Optimal);

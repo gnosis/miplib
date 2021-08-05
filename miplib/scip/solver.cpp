@@ -398,14 +398,18 @@ void ScipSolver::set_verbose(bool value)
 
 void ScipSolver::set_feasibility_tolerance(double value)
 {
-  SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
-  //SCIPsetLPFeastol(p_env, value);
+  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/feastol", value));	
 }
 
 void ScipSolver::set_int_feasibility_tolerance(double value)
 {
-  SCIP_CALL_EXC(SCIPchgFeastol(p_env, value));
-  //SCIPsetLPFeastol(p_env, value);
+  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/feastol", value));
+}
+
+void ScipSolver::set_epsilon(double value)
+{
+  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/epsilon", value));
+  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/sumepsilon", value));
 }
 
 double ScipSolver::get_int_feasibility_tolerance() const
@@ -494,14 +498,19 @@ struct ScipConstraintHandler: scip::ObjConshdlr
     return "ScipConstraintHandler_" + std::to_string(nr_instances++);
   }
 
-  ScipConstraintHandler(ScipSolver& solver, LazyConstrHandler const& constr_hdlr) : 
+  ScipConstraintHandler(
+    ScipSolver& solver,
+    LazyConstrHandler const& constr_hdlr,
+    int enforcing_priority,
+    int checking_priority
+  ) : 
     scip::ObjConshdlr(
       solver.p_env,
       make_new_name().c_str(),// name
       "",     // description
       0,      // priority for separation
-      -1,     // priority for constraint enforcing. <0 means integral solutions only
-      -1,     // priority for checking feasibility. <0 means integral solutions only
+      enforcing_priority,     // priority for constraint enforcing. <0 means integral solutions only
+      checking_priority,     // priority for checking feasibility. <0 means integral solutions only
       -1,     // frequency for separating cuts; 0 = only at root node
       0,     // frequency for propagating domains; 0 = only preprocessing propagation
       0,      // frequency for using all instead of only the useful constraints in separation, propagation and enforcement; -1 = no eager evaluations, 0 = first only
@@ -579,9 +588,15 @@ struct ScipConstraintHandler: scip::ObjConshdlr
 
 std::size_t ScipConstraintHandler::nr_instances = 0;
 
-void ScipSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
+void ScipSolver::add_lazy_constr_handler(LazyConstrHandler const& constr_hdlr, bool at_integral_nodes_only)
 {
-  SCIP_CALL_EXC(SCIPincludeObjConshdlr(p_env, new ScipConstraintHandler(*this, constr_hdlr), true));
+  ScipConstraintHandler* p_scip_conshdlr;
+  if (at_integral_nodes_only)
+    p_scip_conshdlr = new ScipConstraintHandler(*this, constr_hdlr, -1, -1);
+  else
+    p_scip_conshdlr = new ScipConstraintHandler(*this, constr_hdlr, 1, 1);
+
+  SCIP_CALL_EXC(SCIPincludeObjConshdlr(p_env, p_scip_conshdlr, true));
 }
 
 std::string ScipSolver::backend_info()

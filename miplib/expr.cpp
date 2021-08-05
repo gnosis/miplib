@@ -505,12 +505,19 @@ std::vector<Var> Expr::quad_vars_2() const
 }
 
 // Returns the lower and upper bounds of a term.
-static std::pair<double, double> linear_term_bounds(Var const& v, double coeff)
+static std::pair<double, double> linear_term_bounds(Var const& v, double coeff, bool ignore_inf_var_bounds)
 {
-  auto const var_lb = v.lb();
-  auto const var_ub = v.ub();
+  auto var_lb = v.lb();
+  auto var_ub = v.ub();
 
   double const inf = v.solver().infinity();
+  if (ignore_inf_var_bounds)
+  {
+    if (var_lb == -inf)
+      var_lb = 1;
+    if (var_ub == inf)
+      var_ub = 1;
+  }
 
   if (coeff > 0)
     return std::make_pair(std::max(-inf, coeff * var_lb), std::min(inf, coeff * var_ub));
@@ -540,7 +547,7 @@ std::pair<double, double> Expr::bounds() const
 
   for (std::size_t i = 0; i < lin_coeffs.size(); ++i)
   {
-    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i]);
+    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i], false);
     lb += term_lb;
     ub += term_ub;
   }
@@ -549,18 +556,20 @@ std::pair<double, double> Expr::bounds() const
 
 // Returns the maximum absolute value of the term with lowest maximum absolute value and
 // the maximum absolute value of the term with highest maximum absolute value.
-std::pair<double, double> Expr::numerical_range() const
+std::pair<double, double> Expr::numerical_range(bool ignore_inf_var_bounds) const
 {
+  double const inf = solver().infinity();
+
   auto lin_coeffs = linear_coeffs();
   auto lin_vars = linear_vars();
 
   double lb = std::abs(constant());
-  if (lb == 0) lb = std::numeric_limits<double>::infinity();
+  if (lb == 0) lb = inf;
   double ub = std::abs(constant());
 
   for (std::size_t i = 0; i < lin_coeffs.size(); ++i)
   {
-    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i]);
+    auto const [term_lb, term_ub] = linear_term_bounds(lin_vars[i], lin_coeffs[i], ignore_inf_var_bounds);
     double max_abs = std::max(std::abs(term_lb), std::abs(term_ub));
     lb = std::min(lb, max_abs);
     ub = std::max(ub, max_abs);

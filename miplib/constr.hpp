@@ -42,7 +42,8 @@ struct Constr
 
   Constr scale(
     double skip_lb = MIN_MAX_ABS_SKIP_SCALE,
-    double skip_ub = MAX_MAX_ABS_SKIP_SCALE
+    double skip_ub = MAX_MAX_ABS_SKIP_SCALE,
+    bool ignore_inf_var_bounds = false
   ) const;
   
   private:

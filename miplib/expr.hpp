@@ -90,7 +90,7 @@ struct Expr
   std::vector<Var> quad_vars_2() const;
 
   std::pair<double, double> bounds() const;
-  std::pair<double, double> numerical_range() const;
+  std::pair<double, double> numerical_range(bool ignore_inf_var_bounds) const;
 
   Solver const& solver() const
   {

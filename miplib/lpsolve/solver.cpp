@@ -200,6 +200,10 @@ void LpsolveSolver::set_int_feasibility_tolerance(double value)
 void LpsolveSolver::set_feasibility_tolerance(double value)
 {
   set_epsb(p_lprec, value);
+}
+
+void LpsolveSolver::set_epsilon(double value)
+{
   set_epsel(p_lprec, value);
 }
 

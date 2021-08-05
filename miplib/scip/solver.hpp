@@ -52,13 +52,14 @@ struct ScipSolver : detail::ISolver
 
   void remove(Constr const& constr);
   
-  void set_lazy_constr_handler(LazyConstrHandler const& constr);
+  void add_lazy_constr_handler(LazyConstrHandler const& constr, bool at_integral_nodes_only);
 
   std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
+  void set_epsilon(double value);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;

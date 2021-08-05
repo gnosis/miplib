@@ -42,14 +42,16 @@ static double nice_power_of_two(double n)
       - pyomo_linconstr: Constraint to scale.
       - skip_lb: Skip scaling if lowest max abs value is higher than this parameter.
       - skip_ub: Skip scaling if highest max abs value is lower than this parameter.
-
+      - ignore_inf_var_bounds: If false, then it will throw if there is at least one
+      variable with an infinite bound. If true, only the coefficient for that variable
+      will be considered.
   [1] J. A. Tomlin. On scaling linear programming problems. In Computational
       practice in mathematical programming, pages 146–166. Springer, 1975.
 */
 
-Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub)
+Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub, bool ignore_inf_var_bounds)
 {
-  auto [minmaxabs, maxmaxabs] = constr.expr().numerical_range();
+  auto [minmaxabs, maxmaxabs] = constr.expr().numerical_range(ignore_inf_var_bounds);
 
   auto const inf = constr.expr().solver().infinity();
   if (minmaxabs == inf or maxmaxabs == inf)
@@ -66,7 +68,7 @@ Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub)
 
     The above minmaxabs and maxmaxabs are the term amplitudes without
     considering the scaling factor we need to introduce to scale the
-    constraint around 1. To make that the final bounds we obtain once this
+    constraint around 1. To make sure that the final bounds we obtain once this
     scaling factor is introduced are still more or less centered around 1,
     we solve the following optimization problem:
 
@@ -91,7 +93,7 @@ Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub)
 
   double amplitude = maxmaxabs / minmaxabs;
 
-  if (amplitude >= 1e8)
+  if (!ignore_inf_var_bounds and amplitude >= 1e8)
     spdlog::warn(
       "Constraint terms differ more than 1e8 times - expect numerical issues!:\n"
       "| {0} | ∈ [{1}, {2}]",

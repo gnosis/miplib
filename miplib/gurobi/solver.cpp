@@ -12,7 +12,10 @@
 
 namespace miplib {
 
-GurobiSolver::GurobiSolver(): model(env), pending_update(false) {}
+GurobiSolver::GurobiSolver() :
+  model(env),
+  pending_update(false)
+  {}
 
 void GurobiSolver::set_pending_update() const
 {
@@ -340,6 +343,11 @@ double GurobiSolver::get_int_feasibility_tolerance() const
   return model.get(GRB_DoubleParam_IntFeasTol);
 }
 
+void GurobiSolver::set_epsilon(double /*value*/)
+{
+  // it seems it is not possible to set this value in gurobi
+}
+
 double GurobiSolver::get_feasibility_tolerance() const
 {
   return model.get(GRB_DoubleParam_FeasibilityTol);
@@ -420,9 +428,16 @@ void GurobiSolver::set_warm_start(PartialSolution const& partial_solution)
 
 namespace detail {
 
-GurobiCurrentStateHandle::GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr) :
-  m_constr_hdlr(constr_hdlr), m_active(false)
-  {}
+GurobiCurrentStateHandle::GurobiCurrentStateHandle() : m_active(false)
+{}
+
+void GurobiCurrentStateHandle::add_constr_handler(LazyConstrHandler const& constr_hdlr, bool integral_only)
+{
+  if (integral_only)
+    m_integral_only_constr_hdlrs.push_back(constr_hdlr);
+  else
+    m_constr_hdlrs.push_back(constr_hdlr);
+}
 
 double GurobiCurrentStateHandle::value(IVar const& var) const
 { 
@@ -430,8 +445,12 @@ double GurobiCurrentStateHandle::value(IVar const& var) const
   if (where == GRB_CB_MIPSOL or where == GRB_CB_MULTIOBJ)
     return const_cast<GurobiCurrentStateHandle*>(this)->getSolution(grb_var);
   else
-  if (where == GRB_CB_MIPNODE)
+  if (
+    where == GRB_CB_MIPNODE and 
+    const_cast<GurobiCurrentStateHandle*>(this)->getIntInfo(GRB_CB_MIPNODE_STATUS) == GRB_OPTIMAL
+  )
     return const_cast<GurobiCurrentStateHandle*>(this)->getNodeRel(grb_var);
+
   throw std::logic_error("Failure to obtain variable value from current node.");
 }
 
@@ -452,14 +471,28 @@ void GurobiCurrentStateHandle::add_lazy(Constr const& constr)
 
 void GurobiCurrentStateHandle::callback()
 {
-  if (where != GRB_CB_MIPSOL)
-    return;
-
   m_active = true;
-  try {
-    m_constr_hdlr.add();
+  try 
+  {
+    // if we are in an integral or non integral node
+    if (
+      where == GRB_CB_MIPSOL or
+      (where == GRB_CB_MIPNODE and getIntInfo(GRB_CB_MIPNODE_STATUS) == GRB_OPTIMAL)
+    )
+    {
+      for (auto& h : m_constr_hdlrs)
+        h.add();
+    }
+
+    // if we are in an integral node
+    if (where == GRB_CB_MIPSOL)
+    {
+      for (auto& h: m_integral_only_constr_hdlrs)
+        h.add();
+    }
   }
-  catch (...) {
+  catch (...)
+  {
     m_active = false;
     throw;
   }
@@ -468,13 +501,15 @@ void GurobiCurrentStateHandle::callback()
 
 } // namespace detail
 
-void GurobiSolver::set_lazy_constr_handler(LazyConstrHandler const& constr_hdlr)
+void GurobiSolver::add_lazy_constr_handler(LazyConstrHandler const& constr_hdlr, bool at_integral_only)
 {
-  if (p_callback)
-    throw std::logic_error("LazyConstrHandler already set.");
-  model.set(GRB_IntParam_LazyConstraints, 1);
-  p_callback = std::make_unique<detail::GurobiCurrentStateHandle>(constr_hdlr);
-  model.setCallback(p_callback.get());
+  if (!p_callback)
+  {
+    model.set(GRB_IntParam_LazyConstraints, 1);
+    p_callback = std::make_unique<detail::GurobiCurrentStateHandle>();
+    model.setCallback(p_callback.get());
+  }
+  p_callback->add_constr_handler(constr_hdlr, at_integral_only);
 }
 
 std::string GurobiSolver::backend_info()

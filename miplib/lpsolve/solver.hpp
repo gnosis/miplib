@@ -36,7 +36,7 @@ struct LpsolveSolver : detail::ISolver
 
   void remove(Constr const& constr);
 
-  void set_lazy_constr_handler(LazyConstrHandler const&) { throw std::logic_error("Not implemented yet."); }
+  void add_lazy_constr_handler(LazyConstrHandler const&, bool) { throw std::logic_error("Not implemented yet."); }
 
   std::pair<Solver::Result, bool> solve();
 
@@ -44,6 +44,7 @@ struct LpsolveSolver : detail::ISolver
 
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
+  void set_epsilon(double value);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;

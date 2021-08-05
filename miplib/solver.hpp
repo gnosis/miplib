@@ -44,7 +44,7 @@ struct Solver
 
   void remove(Constr const& constr);
 
-  void set_lazy_constr_handler(LazyConstrHandler const& constr_handler);
+  void add_lazy_constr_handler(LazyConstrHandler const& constr_handler, bool at_integral_only);
 
   void set_non_convex_policy(NonConvexPolicy policy);
   void set_indicator_constraint_policy(IndicatorConstraintPolicy policy);
@@ -52,6 +52,7 @@ struct Solver
 
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
+  void set_epsilon(double value);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
@@ -136,13 +137,14 @@ struct ISolver
 
   virtual void remove(Constr const& constr) = 0;
 
-  virtual void set_lazy_constr_handler(LazyConstrHandler const& constr) = 0;
+  virtual void add_lazy_constr_handler(LazyConstrHandler const& constr, bool at_integral_only) = 0;
   virtual std::pair<Solver::Result, bool> solve() = 0;
   virtual void set_non_convex_policy(Solver::NonConvexPolicy policy) = 0;
   virtual void set_indicator_constraint_policy(Solver::IndicatorConstraintPolicy policy);
 
   virtual void set_int_feasibility_tolerance(double value) = 0;
   virtual void set_feasibility_tolerance(double value) = 0;
+  virtual void set_epsilon(double value) = 0;
 
   virtual double get_int_feasibility_tolerance() const = 0;
   virtual double get_feasibility_tolerance() const = 0;

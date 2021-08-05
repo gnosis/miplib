@@ -142,9 +142,9 @@ Constr operator==(Expr const& e1, Expr const& e2)
   return Constr(*p_solver, Constr::Equal, e1 - e2);
 }
 
-Constr Constr::scale(double skip_lb, double skip_ub) const
+Constr Constr::scale(double skip_lb, double skip_ub, bool ignore_inf_var_bounds) const
 {
-  return detail::scale_gm(*this, skip_lb, skip_ub);
+  return detail::scale_gm(*this, skip_lb, skip_ub, ignore_inf_var_bounds);
 }
 
 /**

@@ -9,12 +9,17 @@ namespace miplib {
 namespace detail {
 struct GurobiCurrentStateHandle : GRBCallback, ICurrentStateHandle
 {
-  GurobiCurrentStateHandle(LazyConstrHandler const& constr_hdlr);
+  GurobiCurrentStateHandle();
+  void add_constr_handler(LazyConstrHandler const& constr_hdlr, bool integral_only);
+
   double value(IVar const& var) const;
   void add_lazy(Constr const& constr);
   void callback();
   bool is_active() const { return m_active; }
-  LazyConstrHandler m_constr_hdlr;
+  // constraint handlers that can run on integral or non-integral nodes
+  std::vector<LazyConstrHandler> m_constr_hdlrs;
+  // constraint handlers that can run on integral nodes exclusively
+  std::vector<LazyConstrHandler> m_integral_only_constr_hdlrs;
   bool m_active;
 };
 }
@@ -48,14 +53,15 @@ struct GurobiSolver : detail::ISolver
 
   void remove(Constr const& constr);
 
-  void set_lazy_constr_handler(LazyConstrHandler const&);
+  void add_lazy_constr_handler(LazyConstrHandler const&, bool at_integral_only);
 
   std::pair<Solver::Result, bool> solve();
 
   void set_non_convex_policy(Solver::NonConvexPolicy policy);
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
-
+  void set_epsilon(double value);
+  
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
 

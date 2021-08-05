@@ -6,7 +6,7 @@
 namespace miplib {
 namespace detail {
 
-Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub);
+Constr scale_gm(Constr const& constr, double skip_lb, double skip_ub, bool ignore_inf_var_bounds);
 
 }
 }

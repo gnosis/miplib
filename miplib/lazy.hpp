@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <miplib/var.hpp>
+#include <miplib/constr.hpp>
 
 namespace miplib {
 
