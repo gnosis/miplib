@@ -186,6 +186,11 @@ double Solver::get_feasibility_tolerance() const
   return p_impl->get_feasibility_tolerance();
 }
 
+double Solver::get_epsilon() const
+{
+  return p_impl->get_epsilon();
+}
+
 bool Solver::supports_indicator_constraint(IndicatorConstr const& constr) const
 {
   return p_impl->supports_indicator_constraint(constr); 

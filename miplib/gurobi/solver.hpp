@@ -64,6 +64,7 @@ struct GurobiSolver : detail::ISolver
   
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
+  double get_epsilon() const;
 
   void set_verbose(bool value);
 

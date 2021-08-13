@@ -217,6 +217,11 @@ double LpsolveSolver::get_feasibility_tolerance() const
  return get_epsb(p_lprec);
 }
 
+double LpsolveSolver::get_epsilon() const
+{
+ return get_epsel(p_lprec);
+}
+
 void LpsolveSolver::set_verbose(bool value)
 {
   if (value)

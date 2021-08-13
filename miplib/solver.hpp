@@ -56,6 +56,7 @@ struct Solver
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
+  double get_epsilon() const;
 
   // returns Result and if there is a solution.
   std::pair<Result, bool> solve();
@@ -148,6 +149,7 @@ struct ISolver
 
   virtual double get_int_feasibility_tolerance() const = 0;
   virtual double get_feasibility_tolerance() const = 0;
+  virtual double get_epsilon() const = 0;
 
   virtual void set_verbose(bool value) = 0;
 

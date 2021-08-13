@@ -6,7 +6,7 @@ jobs:
   ubuntu-build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: mvcorreia/miplib-backends:1.0.0
+      image: mvcorreia/miplib-backends:1.0.1
     steps:
     - name: Checkout
       uses: actions/checkout@v2.0.0

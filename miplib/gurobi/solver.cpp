@@ -338,19 +338,25 @@ void GurobiSolver::set_feasibility_tolerance(double value)
   model.set(GRB_DoubleParam_FeasibilityTol, value);
 }
 
-double GurobiSolver::get_int_feasibility_tolerance() const
-{
-  return model.get(GRB_DoubleParam_IntFeasTol);
-}
-
 void GurobiSolver::set_epsilon(double /*value*/)
 {
   // it seems it is not possible to set this value in gurobi
 }
 
+double GurobiSolver::get_int_feasibility_tolerance() const
+{
+  return model.get(GRB_DoubleParam_IntFeasTol);
+}
+
 double GurobiSolver::get_feasibility_tolerance() const
 {
   return model.get(GRB_DoubleParam_FeasibilityTol);
+}
+
+double GurobiSolver::get_epsilon() const
+{
+  // it seems it is not possible to retrieve this value in gurobi
+  return 0;
 }
 
 std::pair<Solver::Result, bool> GurobiSolver::solve()

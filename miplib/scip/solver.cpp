@@ -403,7 +403,7 @@ void ScipSolver::set_feasibility_tolerance(double value)
 
 void ScipSolver::set_int_feasibility_tolerance(double value)
 {
-  SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/feastol", value));
+  set_feasibility_tolerance(value);
 }
 
 void ScipSolver::set_epsilon(double value)
@@ -412,14 +412,23 @@ void ScipSolver::set_epsilon(double value)
   SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/sumepsilon", value));
 }
 
-double ScipSolver::get_int_feasibility_tolerance() const
-{
-  return SCIPfeastol(p_env);
-}
-
 double ScipSolver::get_feasibility_tolerance() const
 {
- return SCIPfeastol(p_env);
+  double v = 0;
+  SCIP_CALL_EXC(SCIPgetRealParam(p_env, "numerics/feastol", &v));
+  return v;
+}
+
+double ScipSolver::get_int_feasibility_tolerance() const
+{
+  return get_feasibility_tolerance();
+}
+
+double ScipSolver::get_epsilon() const
+{
+  double v = 0;
+  SCIP_CALL_EXC(SCIPgetRealParam(p_env, "numerics/epsilon", &v));
+  return v;
 }
 
 double ScipSolver::infinity() const
