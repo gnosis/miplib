@@ -13,6 +13,8 @@
 #include <scip/scipdefplugins.h>
 #include <objscip/objconshdlr.h>
 
+#include <spdlog/spdlog.h>
+
 namespace miplib {
 
 
@@ -26,12 +28,12 @@ ScipSolver::ScipSolver(): p_env(nullptr), p_sol(nullptr), p_aux_obj_var(nullptr)
 }
 
 
-ScipSolver::~ScipSolver() noexcept(false)
+ScipSolver::~ScipSolver()
 {
   if (p_aux_obj_var != nullptr) {
     delete p_aux_obj_var;
   }
-  SCIP_CALL_EXC(SCIPfree(&p_env));
+  SCIP_CALL_TERM(SCIPfree(&p_env));
 }
 
 
@@ -412,6 +414,11 @@ void ScipSolver::set_epsilon(double value)
   SCIP_CALL_EXC(SCIPsetRealParam(p_env, "numerics/sumepsilon", value));
 }
 
+void ScipSolver::set_nr_threads(std::size_t nr_threads)
+{
+  SCIP_CALL_EXC(SCIPsetIntParam(p_env, "parallel/maxnthreads", nr_threads));
+}
+
 double ScipSolver::get_feasibility_tolerance() const
 {
   double v = 0;
@@ -464,6 +471,8 @@ void ScipSolver::set_warm_start(PartialSolution const& partial_solution)
 
   unsigned int stored;
   SCIP_CALL_EXC(SCIPaddSolFree(p_env, &p_sol, &stored));
+  if (!stored)
+    spdlog::warn("Warm start solution was ignored.");
 }
 
 namespace detail {

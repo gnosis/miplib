@@ -14,7 +14,7 @@ LpsolveSolver::LpsolveSolver(): p_lprec(make_lp(0, 0))
 {}
 
 
-LpsolveSolver::~LpsolveSolver() noexcept(false)
+LpsolveSolver::~LpsolveSolver()
 {
   delete_lp(p_lprec);
 }
@@ -205,6 +205,12 @@ void LpsolveSolver::set_feasibility_tolerance(double value)
 void LpsolveSolver::set_epsilon(double value)
 {
   set_epsel(p_lprec, value);
+}
+
+void LpsolveSolver::set_nr_threads(std::size_t nr_threads)
+{
+  if (nr_threads > 1)
+    throw std::logic_error("LPSolver does not support concurrent solving");
 }
 
 double LpsolveSolver::get_int_feasibility_tolerance() const

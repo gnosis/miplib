@@ -9,7 +9,7 @@ namespace miplib {
 struct LpsolveSolver : detail::ISolver
 {
   LpsolveSolver();
-  virtual ~LpsolveSolver() noexcept(false);
+  virtual ~LpsolveSolver();
 
   std::shared_ptr<detail::IVar> create_var(
     Solver const& solver,
@@ -45,6 +45,7 @@ struct LpsolveSolver : detail::ISolver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
   void set_epsilon(double value);
+  void set_nr_threads(std::size_t nr_threads);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;

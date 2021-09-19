@@ -15,6 +15,7 @@ struct LpsolveVar : detail::IVar
     std::optional<double> const& ub,
     std::optional<std::string> const& name
   );
+  virtual ~LpsolveVar() {}
 
   double value() const;
 
@@ -33,8 +34,10 @@ struct LpsolveVar : detail::IVar
 
   int cur_col_idx() const;
 
+  void set_hint(double v);
+
   Solver m_solver;
-  int m_orig_col_idx;
+  std::size_t m_orig_col_idx;
 };
 
 }  // namespace miplib

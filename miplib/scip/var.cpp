@@ -155,4 +155,9 @@ void ScipVar::set_ub(double new_ub)
   SCIPchgVarUb(p_env, p_var, new_ub);
 }
 
+void ScipVar::set_hint(double /*v*/)
+{
+  throw std::logic_error("SCIP does not support set_hint.");
+}
+
 }  // namespace miplib

@@ -2,7 +2,13 @@
 
 #include <miplib/solver.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <scip/scip.h>
+
+#pragma GCC diagnostic pop
+
 namespace miplib {
 
 struct LazyConstrHandler;
@@ -12,6 +18,8 @@ namespace detail {
 struct ScipCurrentStateHandle : ICurrentStateHandle
 {
   ScipCurrentStateHandle(ScipSolver& solver, SCIP_SOL* ap_sol);
+  virtual ~ScipCurrentStateHandle() {}
+
   double value(IVar const& var) const;
   void add_lazy(Constr const& constr);
   bool is_active() const { return m_active; }
@@ -25,7 +33,7 @@ struct ScipCurrentStateHandle : ICurrentStateHandle
 struct ScipSolver : detail::ISolver
 {
   ScipSolver();
-  virtual ~ScipSolver() noexcept(false);
+  virtual ~ScipSolver();
 
   std::shared_ptr<detail::IVar> create_var(
     Solver const& solver,
@@ -60,6 +68,7 @@ struct ScipSolver : detail::ISolver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
   void set_epsilon(double value);
+  void set_nr_threads(std::size_t nr_threads);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;

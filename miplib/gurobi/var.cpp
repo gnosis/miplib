@@ -112,4 +112,15 @@ void GurobiVar::set_start_value(double v)
   gurobi_solver.set_pending_update();
 }
 
+void GurobiVar::set_hint(double v)
+{
+  auto const& gurobi_solver = static_cast<GurobiSolver const&>(*m_solver.p_impl);
+  
+  if (gurobi_solver.is_in_callback())
+    throw std::logic_error("Operation not allowed within callback.");
+
+  m_var.set(GRB_DoubleAttr_VarHintVal, v);
+  gurobi_solver.set_pending_update();
+}
+
 }  // namespace miplib

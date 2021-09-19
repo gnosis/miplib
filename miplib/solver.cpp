@@ -176,6 +176,11 @@ void Solver::set_epsilon(double value)
   p_impl->set_epsilon(value);
 }
 
+void Solver::set_nr_threads(std::size_t nr_threads)
+{
+  p_impl->set_nr_threads(nr_threads);
+}
+
 double Solver::get_int_feasibility_tolerance() const
 {
   return p_impl->get_int_feasibility_tolerance();

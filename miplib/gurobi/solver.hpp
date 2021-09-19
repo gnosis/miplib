@@ -61,7 +61,8 @@ struct GurobiSolver : detail::ISolver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
   void set_epsilon(double value);
-  
+  void set_nr_threads(std::size_t);
+
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
   double get_epsilon() const;

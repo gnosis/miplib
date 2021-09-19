@@ -98,6 +98,11 @@ void Var::set_ub(double new_ub)
   p_impl->set_ub(new_ub);
 }
 
+void Var::set_hint(double v)
+{
+  p_impl->set_hint(v);
+}
+
 std::ostream& operator<<(std::ostream& os, Var const& v)
 {
   os << v.id();

@@ -147,4 +147,9 @@ void LpsolveVar::set_ub(double new_ub)
     );  
 }
 
+void LpsolveVar::set_hint(double /*v*/)
+{
+  throw std::logic_error("Lpsolve does not support set_hint.");
+}
+
 }  // namespace miplib

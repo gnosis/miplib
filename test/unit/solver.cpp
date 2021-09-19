@@ -173,6 +173,8 @@ TEMPLATE_TEST_CASE_SIG(
   {
     Handler(Solver const& solver, Var const& v1, Var const& v2) : 
       m_solver(solver), m_v1(v1), m_v2(v2) {}
+    virtual ~Handler() {}
+
     std::vector<Var> depends() const
     {
       return {m_v1, m_v2};

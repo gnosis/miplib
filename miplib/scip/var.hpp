@@ -36,6 +36,8 @@ struct ScipVar : detail::IVar
   void set_lb(double new_lb);
   void set_ub(double new_ub);
 
+  void set_hint(double v);
+
   Solver m_solver;
   SCIP_VAR* p_var;
 };

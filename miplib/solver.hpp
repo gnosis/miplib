@@ -53,6 +53,7 @@ struct Solver
   void set_int_feasibility_tolerance(double value);
   void set_feasibility_tolerance(double value);
   void set_epsilon(double value);
+  void set_nr_threads(std::size_t);
 
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
@@ -86,6 +87,7 @@ struct Solver
 
   void set_time_limit(double secs);
 
+  // Used to build initial feasible solution.
   void set_warm_start(PartialSolution const& partial_solution);
 
   static std::map<Backend, std::string> backend_info();
@@ -112,7 +114,7 @@ namespace detail {
 
 struct ISolver
 {
-  virtual ~ISolver() noexcept(false) {}
+  virtual ~ISolver() {}
 
   virtual std::shared_ptr<detail::IVar> create_var(
     Solver const& solver,
@@ -146,6 +148,7 @@ struct ISolver
   virtual void set_int_feasibility_tolerance(double value) = 0;
   virtual void set_feasibility_tolerance(double value) = 0;
   virtual void set_epsilon(double value) = 0;
+  virtual void set_nr_threads(std::size_t) = 0;
 
   virtual double get_int_feasibility_tolerance() const = 0;
   virtual double get_feasibility_tolerance() const = 0;

@@ -54,6 +54,8 @@ struct Var
   void set_lb(double new_lb);
   void set_ub(double new_ub);
 
+  void set_hint(double v);
+
   std::shared_ptr<detail::IVar> p_impl;
 
   private:
@@ -99,6 +101,8 @@ struct IVar
 
   virtual void set_lb(double new_lb) = 0;
   virtual void set_ub(double new_ub) = 0;
+
+  virtual void set_hint(double v) = 0;
 };
 
 }  // namespace detail

@@ -343,6 +343,11 @@ void GurobiSolver::set_epsilon(double /*value*/)
   // it seems it is not possible to set this value in gurobi
 }
 
+void GurobiSolver::set_nr_threads(std::size_t nr_threads)
+{
+  model.set(GRB_IntParam_Threads, nr_threads);
+}
+
 double GurobiSolver::get_int_feasibility_tolerance() const
 {
   return model.get(GRB_DoubleParam_IntFeasTol);
@@ -356,7 +361,8 @@ double GurobiSolver::get_feasibility_tolerance() const
 double GurobiSolver::get_epsilon() const
 {
   // it seems it is not possible to retrieve this value in gurobi
-  return 0;
+  // returning this as a proxy.
+  return get_feasibility_tolerance();
 }
 
 std::pair<Solver::Result, bool> GurobiSolver::solve()
@@ -427,8 +433,8 @@ void GurobiSolver::set_warm_start(PartialSolution const& partial_solution)
 
   for (auto const& [var, val]: partial_solution)
   {
-    auto& m_var = const_cast<GRBVar&>(static_cast<GurobiVar const&>(*var.p_impl).m_var);
-    m_var.set(GRB_DoubleAttr_Start, val);
+    auto& m_var = static_cast<GurobiVar&>(*var.p_impl);
+    m_var.set_start_value(val);
   }
 }
 

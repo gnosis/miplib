@@ -8,6 +8,7 @@ namespace miplib {
 struct GurobiVar : detail::IVar
 {
   GurobiVar(Solver const& solver, GRBVar const& v);
+  virtual ~GurobiVar() {};
 
   void update_solver_if_pending() const;
 
@@ -27,6 +28,7 @@ struct GurobiVar : detail::IVar
   void set_ub(double new_ub);
 
   void set_start_value(double v);
+  void set_hint(double v);
 
   Solver m_solver;
   GRBVar m_var;

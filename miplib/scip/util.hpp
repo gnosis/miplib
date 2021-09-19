@@ -14,3 +14,14 @@
     );                                          \
   }						                        \
 }
+
+// This checks for return values of scip calls and
+// terminates program for bad ones.
+
+#define SCIP_CALL_TERM(x) {                      \
+  SCIP_RETCODE retcode;			                \
+  if( (retcode = (x)) != SCIP_OKAY)	            \
+  {						                        \
+	std::terminate();  \
+  }						                        \
+}
