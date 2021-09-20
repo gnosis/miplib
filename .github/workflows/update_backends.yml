@@ -1,9 +1,12 @@
 name: Backends Docker Image
 
 on:
-  # Weekly on Sunday at midnight
+  # Weekly on Sunday at 00:42
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '42 0 * * 0'
+  # On new version tags
+  push:
+    tags: [v*]
   # Manually through the GitHub UI
   workflow_dispatch:
 
