@@ -1,0 +1,22 @@
+name: Backends Docker Image
+
+on:
+  # Weekly on Sunday at 00:42
+  schedule:
+    - cron: '42 0 * * 0'
+  # On new version tags
+  push:
+    tags: [v*]
+  # Manually through the GitHub UI
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_PROJECT: gnosispm/miplib-backends
+      DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker/deploy.sh ${GITHUB_REF#refs/*/}
