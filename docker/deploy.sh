@@ -9,5 +9,5 @@ echo "$DOCKERHUB_PASSWORD" | \
   docker login -u "$DOCKERHUB_USER" --password-stdin
 
 # Build and tag image
-docker build --pull -t $tag -f docker/Dockerfile.binary .
+docker build --pull -t $tag -f docker/Dockerfile .
 docker push $tag
