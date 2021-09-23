@@ -60,10 +60,10 @@ ScipVar::ScipVar(
   SCIP_CALL_EXC(SCIPaddVar(p_env, p_var));
 }
 
-ScipVar::~ScipVar() noexcept(false)
+ScipVar::~ScipVar()
 {
   auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
-  SCIP_CALL_EXC(SCIPreleaseVar(p_env, &p_var));
+  SCIP_CALL_TERM(SCIPreleaseVar(p_env, &p_var));
 }
 
 double ScipVar::value() const

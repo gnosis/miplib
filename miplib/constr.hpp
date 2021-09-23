@@ -120,7 +120,7 @@ struct IConstr
     m_expr(expr),
     m_type(type), m_name(name)
   {}
-  virtual ~IConstr() noexcept(false) {}
+  virtual ~IConstr() {}
   Expr m_expr;
   Constr::Type m_type;
   std::optional<std::string> m_name;

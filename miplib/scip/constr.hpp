@@ -14,7 +14,7 @@ struct ScipConstr : detail::IConstr
     m_solver(expr.solver()), p_constr(nullptr)
   {}
 
-  virtual ~ScipConstr() noexcept(false)
+  virtual ~ScipConstr()
   {
     if (p_constr == nullptr)
       return;
@@ -23,9 +23,9 @@ struct ScipConstr : detail::IConstr
 
     auto scip_stage = SCIPgetStage(p_env);
     if(scip_stage != SCIP_STAGE_PROBLEM and scip_stage != SCIP_STAGE_SOLVING)
-      SCIP_CALL_EXC(SCIPfreeTransform(p_env));
+      SCIP_CALL_TERM(SCIPfreeTransform(p_env));
 
-    SCIP_CALL_EXC(SCIPreleaseCons(p_env, &p_constr));
+    SCIP_CALL_TERM(SCIPreleaseCons(p_env, &p_constr));
   }
 
   Solver m_solver;
@@ -44,16 +44,16 @@ struct ScipIndicatorConstr : detail::IIndicatorConstr
     m_solver(implicant.expr().solver()), p_constr_1(nullptr), p_constr_2(nullptr)
   {}
 
-  virtual ~ScipIndicatorConstr() noexcept(false)
+  virtual ~ScipIndicatorConstr()
   {
     auto p_env = static_cast<ScipSolver const&>(*m_solver.p_impl).p_env;
     if (p_constr_1 != nullptr)
     {
-      SCIP_CALL_EXC(SCIPreleaseCons(p_env, &p_constr_1));
+      SCIP_CALL_TERM(SCIPreleaseCons(p_env, &p_constr_1));
     }
     if (p_constr_2 != nullptr)
     {
-      SCIP_CALL_EXC(SCIPreleaseCons(p_env, &p_constr_2));
+      SCIP_CALL_TERM(SCIPreleaseCons(p_env, &p_constr_2));
     }
   }
 

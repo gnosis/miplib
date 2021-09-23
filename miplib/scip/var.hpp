@@ -16,7 +16,7 @@ struct ScipVar : detail::IVar
     std::optional<std::string> const& name
   );
 
-  virtual ~ScipVar() noexcept(false);
+  virtual ~ScipVar();
 
   double value() const;
 
