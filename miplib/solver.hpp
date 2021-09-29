@@ -37,6 +37,8 @@ struct Solver
   }
 
   void set_objective(Sense const& sense, Expr const& e);
+  double get_objective_value() const;
+
   void add(Constr const& constr, bool scale = false);
   // note: if scale=true then the constraint will be first
   // reformulated to a linear expression and then scaled.
@@ -90,6 +92,13 @@ struct Solver
   // Used to build initial feasible solution.
   void set_warm_start(PartialSolution const& partial_solution);
 
+  // SCIP requires to know in advance if the problem is to be solved
+  // multiple times.
+  void set_reoptimizing(bool);
+
+  // SCIP requires this method to be called before every reoptimization.
+  void setup_reoptimization();
+
   static std::map<Backend, std::string> backend_info();
 
   private:
@@ -135,6 +144,8 @@ struct ISolver
   ) = 0;
 
   virtual void set_objective(Solver::Sense const& sense, Expr const& e) = 0;
+  virtual double get_objective_value() const = 0;
+
   virtual void add(Constr const& constr) = 0;
   virtual void add(IndicatorConstr const& constr) = 0;
 
@@ -168,6 +179,9 @@ struct ISolver
   virtual void dump(std::string const& filename) const = 0;
 
   virtual void set_warm_start(PartialSolution const& partial_solution) = 0;
+
+  virtual void set_reoptimizing(bool) = 0;
+  virtual void setup_reoptimization() = 0;
 
   Solver::IndicatorConstraintPolicy m_indicator_constraint_policy = 
     Solver::IndicatorConstraintPolicy::ReformulateIfUnsupported;

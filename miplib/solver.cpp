@@ -83,6 +83,11 @@ void Solver::set_objective(Sense const& sense, Expr const& e)
   p_impl->set_objective(sense, e);
 }
 
+double Solver::get_objective_value() const
+{
+  return p_impl->get_objective_value();
+}
+
 void Solver::add(Constr const& constr, bool scale)
 {
   if (constr.must_be_violated())
@@ -285,6 +290,16 @@ void Solver::dump(std::string const& filename) const
 void Solver::set_warm_start(PartialSolution const& partial_solution)
 {
   p_impl->set_warm_start(partial_solution);
+}
+
+void Solver::set_reoptimizing(bool value)
+{
+  p_impl->set_reoptimizing(value);
+}
+
+void Solver::setup_reoptimization()
+{
+  p_impl->setup_reoptimization();
 }
 
 std::map<Solver::Backend, std::string> Solver::backend_info()

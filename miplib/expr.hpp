@@ -186,6 +186,7 @@ struct Expr
 
   double lb() const;
   double ub() const;
+  double value() const;
   
   std::vector<Var> vars() const;
   std::size_t arity() const;

@@ -30,6 +30,7 @@ struct LpsolveSolver : detail::ISolver
   );
 
   void set_objective(Solver::Sense const& sense, Expr const& e);
+  double get_objective_value() const;
 
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);
@@ -67,6 +68,9 @@ struct LpsolveSolver : detail::ISolver
   void dump(std::string const& filename) const;
 
   void set_warm_start(PartialSolution const& partial_solution);
+
+  void set_reoptimizing(bool);
+  void setup_reoptimization();
 
   static std::string backend_info();
 

@@ -84,6 +84,11 @@ void LpsolveSolver::set_objective(Solver::Sense const& sense, Expr const& e)
 }
 
 
+double LpsolveSolver::get_objective_value() const
+{
+  return get_objective(p_lprec);
+}
+
 void LpsolveSolver::add(Constr const& constr)
 {
   auto const& constr_impl = static_cast<LpsolveConstr const&>(*constr.p_impl);
@@ -264,6 +269,16 @@ void LpsolveSolver::dump(std::string const& filename) const
 void LpsolveSolver::set_warm_start(PartialSolution const& /*partial_solution*/)
 {
   throw std::logic_error("Lpsolve does not support warm starts.");
+}
+
+void LpsolveSolver::set_reoptimizing(bool)
+{
+  // Lpsolve does not require explicitely enabling/disabling reoptimization.
+}
+
+void LpsolveSolver::setup_reoptimization()
+{
+  // Lpsolve does not require doing anything explicit before reoptimizing.
 }
 
 std::string LpsolveSolver::backend_info()

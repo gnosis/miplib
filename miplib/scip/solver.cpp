@@ -175,6 +175,10 @@ void ScipSolver::set_objective(Solver::Sense const& sense, Expr const& e)
   SCIP_CALL_EXC(SCIPsetObjsense(p_env, scip_sense));
 }
 
+double ScipSolver::get_objective_value() const
+{
+  return SCIPgetPrimalbound(p_env);
+}
 
 void ScipSolver::add(Constr const& constr)
 {
@@ -473,6 +477,17 @@ void ScipSolver::set_warm_start(PartialSolution const& partial_solution)
   SCIP_CALL_EXC(SCIPaddSolFree(p_env, &p_sol, &stored));
   if (!stored)
     spdlog::warn("Warm start solution was ignored.");
+}
+
+void ScipSolver::set_reoptimizing(bool value)
+{
+  SCIP_CALL_EXC(SCIPenableReoptimization(p_env, value)); 
+}	
+
+void ScipSolver::setup_reoptimization()
+{
+  //SCIP_CALL_EXC(SCIPfreeReoptSolve(p_env));
+  SCIP_CALL_EXC(SCIPfreeTransform(p_env));
 }
 
 namespace detail {

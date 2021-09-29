@@ -179,6 +179,11 @@ void GurobiSolver::set_objective(Solver::Sense const& sense, Expr const& e)
   }
 }
 
+double GurobiSolver::get_objective_value() const
+{
+  return model.get(GRB_DoubleAttr_ObjVal);
+}
+
 void GurobiSolver::add(Constr const& constr)
 {
   auto const& e = constr.expr();
@@ -436,6 +441,16 @@ void GurobiSolver::set_warm_start(PartialSolution const& partial_solution)
     auto& m_var = static_cast<GurobiVar&>(*var.p_impl);
     m_var.set_start_value(val);
   }
+}
+
+void GurobiSolver::set_reoptimizing(bool)
+{
+  // GurobiSolver does not require explicitely enabling/disabling reoptimization.
+}
+
+void GurobiSolver::setup_reoptimization()
+{
+  // Gurobi does not require doing anything explicit before reoptimizing.
 }
 
 namespace detail {

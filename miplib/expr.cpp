@@ -742,6 +742,26 @@ double Expr::ub() const
   return -(-(*this)).lb();
 }
 
+double Expr::value() const
+{
+  double r = constant();
+
+  // linear part
+  auto const lv = linear_vars();
+  auto const lc = linear_coeffs();
+  for (std::size_t i = 0; i < lc.size(); ++i)
+    r += lc[i] * lv[i].value();
+
+  // quadratic part
+  auto const qv1 = quad_vars_1();
+  auto const qv2 = quad_vars_2();
+  auto const qc = quad_coeffs();
+  for (std::size_t i = 0; i < qc.size(); ++i)
+    r += qc[i] * qv1[i].value() * qv2[i].value();
+
+  return r;  
+}
+
 std::vector<Var> Expr::vars() const
 {
   std::set<Var> r;
