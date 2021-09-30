@@ -21,4 +21,4 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - run: docker/deploy.sh ${GITHUB_REF#refs/*/}
+      - run: docker/deploy.sh
