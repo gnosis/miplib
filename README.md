@@ -74,3 +74,11 @@ make
 ```bash
 ./build/{release|debug}/test/unit_test
 ```
+
+# Deploy
+
+See:
+
+```bash
+docker/deploy.sh
+```
