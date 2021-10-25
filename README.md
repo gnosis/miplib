@@ -74,3 +74,10 @@ make
 ```bash
 ./build/{release|debug}/test/unit_test
 ```
+
+# Deploy
+
+Example:
+
+docker build -f docker/Dockerfile  --pull . -t mvcorreia/miplib-backends:1.0.0
+docker push mvcorreia/miplib-backends:1.0.1
