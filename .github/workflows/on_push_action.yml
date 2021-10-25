@@ -6,7 +6,7 @@ jobs:
   ubuntu-build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: gnosispm/miplib-backends:main
+      image: gnosispm/miplib-backends:3-main
     steps:
     - name: Checkout
       uses: actions/checkout@v2.0.0
@@ -15,10 +15,10 @@ jobs:
       with:
         build-dir: ${{ runner.workspace }}/build
         build-type: Release
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      with:
-        sudo: false
+    #- name: Setup tmate session
+    #  uses: mxschmitt/action-tmate@v3
+    #  with:
+    #    sudo: false
     - name: Run unit tests
       run: ./unit_test
       working-directory: ${{ runner.workspace }}/build/test
