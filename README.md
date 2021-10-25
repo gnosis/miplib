@@ -77,7 +77,8 @@ make
 
 # Deploy
 
-Example:
+See:
 
-docker build -f docker/Dockerfile  --pull . -t mvcorreia/miplib-backends:1.0.0
-docker push mvcorreia/miplib-backends:1.0.1
+```bash
+docker/deploy.sh
+```
