@@ -183,14 +183,12 @@ double ScipSolver::get_objective_value() const
 Solver::Sense ScipSolver::get_objective_sense() const
 {
   auto scip_sense = SCIPgetObjsense(p_env);
-  switch (scip_sense)
+  if (scip_sense == SCIP_OBJSENSE_MINIMIZE)
+    return Solver::Sense::Minimize;
+  else
   {
-    case SCIP_OBJSENSE_MINIMIZE:
-      return Solver::Sense::Minimize;
-    case SCIP_OBJSENSE_MAXIMIZE:
-      return Solver::Sense::Maximize;
-    default:
-      assert(false);
+    assert(scip_sense == SCIP_OBJSENSE_MAXIMIZE);
+    return Solver::Sense::Maximize;
   }
 }
 

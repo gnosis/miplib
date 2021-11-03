@@ -187,14 +187,12 @@ double GurobiSolver::get_objective_value() const
 Solver::Sense GurobiSolver::get_objective_sense() const
 {
   auto grb_sense = model.get(GRB_IntAttr_ModelSense);
-  switch (grb_sense)
+  if (grb_sense == GRB_MINIMIZE)
+    return Solver::Sense::Minimize;
+  else
   {
-    case GRB_MINIMIZE:
-      return Solver::Sense::Minimize;
-    case GRB_MAXIMIZE:
-      return Solver::Sense::Maximize;
-    default:
-      assert(false);
+    assert(grb_sense == GRB_MAXIMIZE);
+    return Solver::Sense::Maximize;
   }
 }
 
