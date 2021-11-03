@@ -88,6 +88,11 @@ double Solver::get_objective_value() const
   return p_impl->get_objective_value();
 }
 
+Solver::Sense Solver::get_objective_sense() const
+{
+  return p_impl->get_objective_sense();
+}
+
 void Solver::add(Constr const& constr, bool scale)
 {
   if (constr.must_be_violated())

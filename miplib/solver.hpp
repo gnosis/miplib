@@ -38,6 +38,7 @@ struct Solver
 
   void set_objective(Sense const& sense, Expr const& e);
   double get_objective_value() const;
+  Solver::Sense get_objective_sense() const;
 
   void add(Constr const& constr, bool scale = false);
   // note: if scale=true then the constraint will be first
@@ -145,6 +146,7 @@ struct ISolver
 
   virtual void set_objective(Solver::Sense const& sense, Expr const& e) = 0;
   virtual double get_objective_value() const = 0;
+  virtual Solver::Sense get_objective_sense() const = 0;
 
   virtual void add(Constr const& constr) = 0;
   virtual void add(IndicatorConstr const& constr) = 0;

@@ -31,6 +31,7 @@ struct LpsolveSolver : detail::ISolver
 
   void set_objective(Solver::Sense const& sense, Expr const& e);
   double get_objective_value() const;
+  Solver::Sense get_objective_sense() const;
 
   void add(Constr const& constr);
   void add(IndicatorConstr const& constr);

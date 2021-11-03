@@ -89,6 +89,11 @@ double LpsolveSolver::get_objective_value() const
   return get_objective(p_lprec);
 }
 
+Solver::Sense LpsolveSolver::get_objective_sense() const
+{
+  throw std::logic_error("Lpsolve does not support retrieving current objective sense.");
+}
+
 void LpsolveSolver::add(Constr const& constr)
 {
   auto const& constr_impl = static_cast<LpsolveConstr const&>(*constr.p_impl);

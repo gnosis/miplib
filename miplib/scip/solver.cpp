@@ -180,6 +180,20 @@ double ScipSolver::get_objective_value() const
   return SCIPgetPrimalbound(p_env);
 }
 
+Solver::Sense ScipSolver::get_objective_sense() const
+{
+  auto scip_sense = SCIPgetObjsense(p_env);
+  switch (scip_sense)
+  {
+    case SCIP_OBJSENSE_MINIMIZE:
+      return Solver::Sense::Minimize;
+    case SCIP_OBJSENSE_MAXIMIZE:
+      return Solver::Sense::Maximize;
+    default:
+      assert(false);
+  }
+}
+
 void ScipSolver::add(Constr const& constr)
 {
   if (is_in_callback())
@@ -194,6 +208,9 @@ void ScipSolver::add(Constr const& constr)
   {
     throw std::logic_error("Attempt to post the same constraint twice.");
   }
+
+  if(SCIPgetStage(p_env) == SCIP_STAGE_SOLVED)
+    setup_reoptimization();
 
   SCIP_CONS* p_constr = as_scip_constr(constr);
 
@@ -239,7 +256,7 @@ bool ScipSolver::supports_indicator_constraint(IndicatorConstr const& constr) co
 void ScipSolver::add(IndicatorConstr const& constr)
 {
   auto const& constr_impl = static_cast<ScipIndicatorConstr const&>(*constr.p_impl);
-
+  
   if (constr_impl.p_constr_1 != nullptr)
   {
     std::logic_error("Attempt to post the same constraint twice.");
@@ -250,6 +267,9 @@ void ScipSolver::add(IndicatorConstr const& constr)
     throw std::logic_error(
       "Scip does not support this indicator constraint. Try .reformulation()."
     );
+
+  if(SCIPgetStage(p_env) == SCIP_STAGE_SOLVED)
+    setup_reoptimization();
 
   auto const& implicant = constr.implicant();
   auto const& implicand = constr.implicand();

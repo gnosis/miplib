@@ -184,6 +184,20 @@ double GurobiSolver::get_objective_value() const
   return model.get(GRB_DoubleAttr_ObjVal);
 }
 
+Solver::Sense GurobiSolver::get_objective_sense() const
+{
+  auto grb_sense = model.get(GRB_IntAttr_ModelSense);
+  switch (grb_sense)
+  {
+    case GRB_MINIMIZE:
+      return Solver::Sense::Minimize;
+    case GRB_MAXIMIZE:
+      return Solver::Sense::Maximize;
+    default:
+      assert(false);
+  }
+}
+
 void GurobiSolver::add(Constr const& constr)
 {
   auto const& e = constr.expr();
