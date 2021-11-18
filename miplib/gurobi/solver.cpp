@@ -9,6 +9,7 @@
 #include <miplib/gurobi/constr.hpp>
 
 #include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 namespace miplib {
 
@@ -171,11 +172,13 @@ void GurobiSolver::set_objective(Solver::Sense const& sense, Expr const& e)
   {
     GRBLinExpr grb_expr = as_grb_lin_expr(e);
     model.setObjective(grb_expr, grb_sense);
+    model_has_changed_since_last_solve = true;
   }
   else
   if (e.is_quadratic()) {
     GRBQuadExpr grb_expr = as_grb_quad_expr(e);    
     model.setObjective(grb_expr, grb_sense);
+    model_has_changed_since_last_solve = true;
   }
 }
 
@@ -216,6 +219,8 @@ void GurobiSolver::add(Constr const& constr)
 
     static_cast<GurobiLinConstr const&>(*constr.p_impl).m_constr
       = model.addConstr(lhs_expr, sense, 0, name.value_or(""));
+    
+    model_has_changed_since_last_solve = true;
   }
   else if (e.is_quadratic())
   {
@@ -225,6 +230,8 @@ void GurobiSolver::add(Constr const& constr)
 
     static_cast<GurobiQuadConstr const&>(*constr.p_impl).m_constr
       = model.addQConstr(lhs_expr, sense, 0, name.value_or(""));
+
+    model_has_changed_since_last_solve = true;
   }
   else
   {
@@ -302,6 +309,8 @@ void GurobiSolver::add(IndicatorConstr const& constr)
   static_cast<GurobiIndicatorConstr const&>(*constr.p_impl).m_constr
     = model.addGenConstrIndicator(
       bin_var, bin_val, implicand_expr, sense, 0, name.value_or(""));
+
+  model_has_changed_since_last_solve = true;
 }
 
 void GurobiSolver::remove(Constr const& constr)
@@ -310,12 +319,14 @@ void GurobiSolver::remove(Constr const& constr)
   {
     auto const& c = static_cast<GurobiLinConstr const&>(*constr.p_impl);
     model.remove(c.m_constr.value());
+    model_has_changed_since_last_solve = true;
   }
   else
   if (std::dynamic_pointer_cast<GurobiQuadConstr>(constr.p_impl))
   {
     auto const& c = static_cast<GurobiQuadConstr const&>(*constr.p_impl);
     model.remove(c.m_constr.value());
+    model_has_changed_since_last_solve = true;
   }
   else
     assert(false);
@@ -325,7 +336,7 @@ void GurobiSolver::set_non_convex_policy(Solver::NonConvexPolicy policy)
 {
   switch (policy)
   {
-    case Solver::NonConvexPolicy::Error:
+    case Solver::NonConvexPolicy::Error:    
       model.set(GRB_IntParam_NonConvex, 0);
       break;
     case Solver::NonConvexPolicy::Linearize:
@@ -382,16 +393,9 @@ double GurobiSolver::get_epsilon() const
   return get_feasibility_tolerance();
 }
 
-std::pair<Solver::Result, bool> GurobiSolver::solve()
+static std::pair<Solver::Result, bool> grb_status_to_solver_result(int grb_status, bool has_solution)
 {
-  auto nr_sols_before = model.get(GRB_IntAttr_SolCount);
-  model.optimize();
-  bool has_solution = model.get(GRB_IntAttr_SolCount) > nr_sols_before;
-
-  pending_update = false;
-
-  auto r = model.get(GRB_IntAttr_Status);
-  switch (r)
+  switch (grb_status)
   {
     case GRB_OPTIMAL:
       return {Solver::Result::Optimal, true};
@@ -421,6 +425,26 @@ std::pair<Solver::Result, bool> GurobiSolver::solve()
     default:
       return {Solver::Result::Other, has_solution};
   }
+}
+
+std::pair<Solver::Result, bool> GurobiSolver::solve()
+{
+  if (!model_has_changed_since_last_solve)
+  {
+    spdlog::warn("Will not resolve a model that has not changed .");
+    auto grb_status = model.get(GRB_IntAttr_Status);
+    bool has_solution = model.get(GRB_IntAttr_SolCount) > 0; 
+    return grb_status_to_solver_result(grb_status, has_solution);
+  }
+
+  model.optimize();
+  bool has_solution = model.get(GRB_IntAttr_SolCount) > 0;
+
+  pending_update = false;
+  model_has_changed_since_last_solve = false;
+
+  auto grb_status = model.get(GRB_IntAttr_Status);
+  return grb_status_to_solver_result(grb_status, has_solution);
 }
 
 double GurobiSolver::infinity() const

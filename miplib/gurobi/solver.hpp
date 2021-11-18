@@ -99,6 +99,7 @@ struct GurobiSolver : detail::ISolver
   GRBEnv env;
   mutable GRBModel model;
   mutable bool pending_update;
+  mutable bool model_has_changed_since_last_solve;
   std::unique_ptr<detail::GurobiCurrentStateHandle> p_callback;
 };
 

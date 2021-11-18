@@ -365,11 +365,9 @@ void ScipSolver::remove(Constr const& constr)
 
 std::pair<Solver::Result, bool> ScipSolver::solve()
 {
-  auto nr_sols_before = SCIPgetNRuns(p_env) == 0 ? 0 : SCIPgetNBestSolsFound(p_env);
-
   SCIP_CALL_EXC(SCIPsolve(p_env));
 
-  bool has_solution = SCIPgetNBestSolsFound(p_env) > nr_sols_before;
+  bool has_solution = SCIPgetNBestSolsFound(p_env) > 0;
 
   // This will be 0 in case there is no solution.
   auto sol = SCIPgetBestSol(p_env);
