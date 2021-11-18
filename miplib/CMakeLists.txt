@@ -24,10 +24,10 @@ find_path(GUROBI_INCLUDE_DIR
 
 find_library(GUROBI_C_LIBRARY
   NAMES gurobi
+  gurobi95
+  libgurobi95.so
   gurobi91
   libgurobi91.so
-  gurobi90
-  libgurobi90.so
   PATHS "${GUROBI}/lib"
 )
 

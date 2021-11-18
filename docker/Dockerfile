@@ -82,10 +82,10 @@ COPY --from=COMPILE /usr/local/include/ /usr/local/include/
 # ./SCIPOptSuite-7.0.2-Linux-ubuntu.sh --skip-license
 
 # Install Gurobi solver
-RUN wget --no-check-certificate https://packages.gurobi.com/9.1/gurobi9.1.1_linux64.tar.gz \
-  && tar xzf gurobi9.1.1_linux64.tar.gz
+RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.0_linux64.tar.gz \
+  && tar xzf gurobi9.5.0_linux64.tar.gz
 
-ENV GUROBI_DIR="/opt/gurobi911/linux64"
+ENV GUROBI_DIR="/opt/gurobi950/linux64"
 
 RUN cd $GUROBI_DIR/src/build && \
   make && \
