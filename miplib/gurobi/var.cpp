@@ -1,5 +1,6 @@
 
 #include "var.hpp"
+#include "exception.hpp"
 
 namespace miplib {
 
@@ -23,7 +24,7 @@ double GurobiVar::value() const
     return gurobi_solver.p_callback->value(*this);
 
   update_solver_if_pending();
-  return m_var.get(GRB_DoubleAttr_X);
+  return call_with_exception_logging([&]{return m_var.get(GRB_DoubleAttr_X);});
 }
 
 Var::Type GurobiVar::type() const

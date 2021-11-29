@@ -7,6 +7,7 @@
 #include <miplib/var.hpp>
 #include <miplib/gurobi/var.hpp>
 #include <miplib/gurobi/constr.hpp>
+#include <miplib/gurobi/exception.hpp>
 
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
@@ -437,7 +438,8 @@ std::pair<Solver::Result, bool> GurobiSolver::solve()
     return grb_status_to_solver_result(grb_status, has_solution);
   }
 
-  model.optimize();
+  call_with_exception_logging([&]{model.optimize();});
+
   bool has_solution = model.get(GRB_IntAttr_SolCount) > 0;
 
   pending_update = false;
