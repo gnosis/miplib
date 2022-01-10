@@ -8,7 +8,7 @@
 # Required in order to use fast HSL code
 # Install SCIP solver (from source)
 
-ARG SCIP_VERSION=7.0.2
+ARG SCIP_VERSION=7.0.3
 ARG IPOPT_VERSION=3.14.4
 
 FROM ubuntu:latest as COMPILE
@@ -54,7 +54,7 @@ RUN wget https://scip.zib.de/download/release/scipoptsuite-${SCIP_VERSION}.tgz -
   && cd scipoptsuite-${SCIP_VERSION} \
   && mkdir build \
   && cd build \
-  && cmake .. \
+  && cmake -DZIMPL=off .. \
   && make CXX_FLAGS="-DSOPLEX_WITH_GMP -fPIC" install \
   && cd $WORKDIR
 
