@@ -129,8 +129,7 @@ TEMPLATE_TEST_CASE_SIG(
     return;
   }
 
-  Solver solver(Backend);
-  solver.set_verbose(false);
+  Solver solver(Backend, false);
 
   Var v1(solver, Var::Type::Binary, "v1");
   Var v2(solver, Var::Type::Binary, "v2");
@@ -164,9 +163,8 @@ TEMPLATE_TEST_CASE_SIG(
     return;
   }
 
-  Solver solver(Backend);
+  Solver solver(Backend, false);
 
-  solver.set_verbose(false);
   solver.set_non_convex_policy(Solver::NonConvexPolicy::Branch);
 
   Var v1(solver, Var::Type::Continuous, "v1");
@@ -198,8 +196,7 @@ TEMPLATE_TEST_CASE_SIG(
     return;
   }
 
-  Solver solver(Backend);
-  solver.set_verbose(false);
+  Solver solver(Backend, false);
 
   Var v1(solver, Var::Type::Binary, "v1");
   Var v2(solver, Var::Type::Binary, "v2");

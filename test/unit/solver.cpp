@@ -24,8 +24,7 @@ TEMPLATE_TEST_CASE_SIG(
     return;
   }
 
-  Solver solver(Backend);
-  solver.set_verbose(false);
+  Solver solver(Backend, false);
 
   Var v1(solver, Var::Type::Integer, 1, 3, "v1");
   Var v2(solver, Var::Type::Integer, 1, 3, "v2");
@@ -198,8 +197,7 @@ TEMPLATE_TEST_CASE_SIG(
 
   SECTION("Test lazy constraint 1")
   {
-    Solver solver(Backend);
-    solver.set_verbose(false);
+    Solver solver(Backend, false);
 
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
@@ -214,8 +212,7 @@ TEMPLATE_TEST_CASE_SIG(
 
   SECTION("Test lazy constraint 2")
   {
-    Solver solver(Backend);
-    solver.set_verbose(false);
+    Solver solver(Backend, false);
 
     Var v1(solver, Var::Type::Integer, 0, 1, "v1");
     Var v2(solver, Var::Type::Integer, 0, 1, "v2");
@@ -244,8 +241,7 @@ TEMPLATE_TEST_CASE_SIG(
     return;
   }
 
-  Solver solver(Backend);
-  solver.set_verbose(false);
+  Solver solver(Backend, false);
 
   Var v1(solver, Var::Type::Integer, 1, 2, "v1");
   Var v2(solver, Var::Type::Integer, 1, 2, "v2");
