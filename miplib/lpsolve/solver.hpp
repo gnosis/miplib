@@ -8,7 +8,7 @@ namespace miplib {
 
 struct LpsolveSolver : detail::ISolver
 {
-  LpsolveSolver();
+  LpsolveSolver(bool verbose);
   virtual ~LpsolveSolver();
 
   std::shared_ptr<detail::IVar> create_var(

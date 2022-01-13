@@ -14,40 +14,40 @@
 
 namespace miplib {
 
-Solver::Solver(Backend backend): m_backend(backend), m_constraint_autoscale(false)
+Solver::Solver(Backend backend, bool verbose): m_backend(backend), m_constraint_autoscale(false)
 {
   switch (backend)
   {
     case  Solver::Backend::Gurobi:
       #ifdef WITH_GUROBI
-      p_impl = std::make_shared<GurobiSolver>();
+      p_impl = std::make_shared<GurobiSolver>(verbose);
       return;
       #else
       throw std::logic_error("Request for Gurobi backend but it was not compiled.");
       #endif
     case Solver::Backend::Scip:
       #ifdef WITH_SCIP
-      p_impl = std::make_shared<ScipSolver>();
+      p_impl = std::make_shared<ScipSolver>(verbose);
       return;
       #else
       throw std::logic_error("Request for SCIP backend but it was not compiled.");
       #endif
     case Solver::Backend::Lpsolve:
       #ifdef WITH_LPSOLVE
-      p_impl = std::make_shared<LpsolveSolver>();
+      p_impl = std::make_shared<LpsolveSolver>(verbose);
       return;
       #else
       throw std::logic_error("Request for Lpsolve backend but it was not compiled.");
       #endif
     case Solver::Backend::BestAtCompileTime:
       #if defined(WITH_GUROBI)
-      p_impl = std::make_shared<GurobiSolver>();
+      p_impl = std::make_shared<GurobiSolver>(verbose);
       return;
       #elif defined(WITH_SCIP)
-      p_impl = std::make_shared<ScipSolver>();
+      p_impl = std::make_shared<ScipSolver>(verbose);
       return;
       #elif defined(WITH_LPSOLVE)
-      p_impl = std::make_shared<LpsolveSolver>();
+      p_impl = std::make_shared<LpsolveSolver>(verbose);
       return;
       #else
       throw std::logic_error("No MIP backends were compiled.");
@@ -56,21 +56,21 @@ Solver::Solver(Backend backend): m_backend(backend), m_constraint_autoscale(fals
       #if defined(WITH_GUROBI)
       if (backend_is_available(Solver::Backend::Gurobi))
       {
-        p_impl = std::make_shared<GurobiSolver>();
+        p_impl = std::make_shared<GurobiSolver>(verbose);
         return;  
       }
       #endif
       #if defined(WITH_SCIP)
       if (backend_is_available(Solver::Backend::Scip))
       {
-        p_impl = std::make_shared<ScipSolver>();
+        p_impl = std::make_shared<ScipSolver>(verbose);
         return;  
       }
       #endif
       #if defined(WITH_LPSOLVE)
       if (backend_is_available(Solver::Backend::Lpsolve))
       {
-        p_impl = std::make_shared<LpsolveSolver>();
+        p_impl = std::make_shared<LpsolveSolver>(verbose);
         return;  
       }
       #endif
@@ -159,11 +159,6 @@ void Solver::set_non_convex_policy(NonConvexPolicy policy)
 void Solver::set_indicator_constraint_policy(IndicatorConstraintPolicy policy)
 {
   p_impl->set_indicator_constraint_policy(policy);
-}
-
-void Solver::set_verbose(bool value)
-{
-  p_impl->set_verbose(value);
 }
 
 void Solver::set_constraint_autoscale(bool autoscale)

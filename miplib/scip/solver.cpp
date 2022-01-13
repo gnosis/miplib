@@ -18,13 +18,15 @@
 namespace miplib {
 
 
-ScipSolver::ScipSolver(): p_env(nullptr), p_sol(nullptr), p_aux_obj_var(nullptr)
+ScipSolver::ScipSolver(bool verbose): p_env(nullptr), p_sol(nullptr), p_aux_obj_var(nullptr)
 {
   SCIP_CALL_EXC(SCIPcreate(&p_env));
   SCIP_CALL_EXC(SCIPincludeDefaultPlugins(p_env));
 
   SCIP_CALL_EXC(SCIPcreateProbBasic(p_env, "unnamed"));
   //SCIP_CALL_EXC(SCIPsetPresolving(p_env, SCIP_PARAMSETTING_OFF, true));
+
+  set_verbose(verbose);
 }
 
 

@@ -32,7 +32,7 @@ struct ScipCurrentStateHandle : ICurrentStateHandle
 
 struct ScipSolver : detail::ISolver
 {
-  ScipSolver();
+  ScipSolver(bool verbose);
   virtual ~ScipSolver();
 
   std::shared_ptr<detail::IVar> create_var(

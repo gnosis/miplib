@@ -14,7 +14,15 @@
 
 namespace miplib {
 
-GurobiSolver::GurobiSolver() :
+static GRBEnv init_env(bool verbose) {
+  GRBEnv env(true);
+  env.set(GRB_IntParam_OutputFlag, verbose);
+  env.start();
+  return env;
+}
+
+GurobiSolver::GurobiSolver(bool verbose) :
+  env(init_env(verbose)),
   model(env),
   pending_update(false)
   {}
@@ -349,12 +357,6 @@ void GurobiSolver::set_non_convex_policy(Solver::NonConvexPolicy policy)
     default:
       assert(false);
   }
-}
-
-
-void GurobiSolver::set_verbose(bool value)
-{
-  model.set(GRB_IntParam_OutputFlag, value);
 }
 
 void GurobiSolver::set_int_feasibility_tolerance(double value)

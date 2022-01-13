@@ -10,8 +10,10 @@
 namespace miplib {
 
 
-LpsolveSolver::LpsolveSolver(): p_lprec(make_lp(0, 0))
-{}
+LpsolveSolver::LpsolveSolver(bool verbose): p_lprec(make_lp(0, 0))
+{
+  set_verbose(verbose);
+}
 
 
 LpsolveSolver::~LpsolveSolver()

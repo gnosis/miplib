@@ -30,7 +30,8 @@ struct Solver
     Other
   };
 
-  Solver(Backend backend);
+  Solver(Backend backend, bool verbose=true);
+
   Backend const& backend() const
   {
     return m_backend;
@@ -68,8 +69,6 @@ struct Solver
   // shortcut for set_objective and solve;
   std::pair<Result, bool> maximize(Expr const& e);
   std::pair<Result, bool> minimize(Expr const& e);
-
-  void set_verbose(bool value);
 
   bool supports_indicator_constraint(IndicatorConstr const& constr) const;
 
@@ -166,8 +165,6 @@ struct ISolver
   virtual double get_int_feasibility_tolerance() const = 0;
   virtual double get_feasibility_tolerance() const = 0;
   virtual double get_epsilon() const = 0;
-
-  virtual void set_verbose(bool value) = 0;
 
   virtual bool supports_indicator_constraint(IndicatorConstr const& constr) const = 0;
 

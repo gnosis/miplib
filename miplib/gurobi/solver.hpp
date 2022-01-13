@@ -26,7 +26,7 @@ struct GurobiCurrentStateHandle : GRBCallback, ICurrentStateHandle
 
 struct GurobiSolver : detail::ISolver
 {
-  GurobiSolver();
+  GurobiSolver(bool verbose = true);
   virtual ~GurobiSolver() {}
 
   std::shared_ptr<detail::IVar> create_var(
@@ -68,8 +68,6 @@ struct GurobiSolver : detail::ISolver
   double get_int_feasibility_tolerance() const;
   double get_feasibility_tolerance() const;
   double get_epsilon() const;
-
-  void set_verbose(bool value);
 
   void set_pending_update() const;
   void update_if_pending() const;
