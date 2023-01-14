@@ -3,6 +3,7 @@
 #include <memory>
 #include <miplib/var.hpp>
 #include <miplib/constr.hpp>
+#include <vector>
 
 namespace miplib {
 
