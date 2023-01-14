@@ -2,6 +2,7 @@
 #include "expr.hpp"
 #include "solver.hpp"
 
+#include <set>
 #include <fmt/ostream.h>
 
 namespace miplib {

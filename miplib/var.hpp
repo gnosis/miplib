@@ -29,8 +29,6 @@ struct Var
 
   Var(Solver const& solver, Var::Type const& type, std::string const& name);
 
-  Var(Var const& v) = default;
-
   bool is_same(Var const& v1) const;
 
   bool is_lex_less(Var const& v1) const;
