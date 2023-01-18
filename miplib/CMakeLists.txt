@@ -122,4 +122,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC ${COMPILE_FLAGS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
+find_package(Boost CONFIG REQUIRED)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
+
 target_link_libraries(${PROJECT_NAME} ${LIBS})
