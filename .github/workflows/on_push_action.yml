@@ -24,4 +24,5 @@ jobs:
         run: |
           cd /var/www
           cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
-          cmake --build build -j
+          cmake --build ./build -j
+          ./build/test/unit_test

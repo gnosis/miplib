@@ -19,12 +19,8 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     wget libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 lp-solve \
     build-essential cmake g++-9 libgmp-dev libblas-dev libbliss-dev zlib1g-dev libgsl-dev libcliquer-dev \
-    libreadline-dev git ca-certificates ssh liblpsolve55-dev libgomp1 curl \
+    libreadline-dev git ca-certificates ssh liblpsolve55-dev libgomp1 curl patchelf \
   && rm -rf /var/lib/apt/lists/*
-
-RUN echo container arch when building container
-RUN uname -a
-
 
 WORKDIR /opt
 
@@ -37,6 +33,13 @@ RUN curl -L https://scip.zib.de/download/release/SCIPOptSuite-8.0.3-Linux-ubuntu
 RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz \
   && tar xzf gurobi9.5.1_linux64.tar.gz
 
-ENV GUROBI_DIR="/opt/gurobi951/linux64"
+ENV GUROBI="/opt/gurobi951/linux64"
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
+# Fix ABI incompatibilities of the pre compiled gurobi lib.
+# See https://support.gurobi.com/hc/en-us/articles/360039093112-How-do-I-resolve-undefined-reference-errors-while-linking-Gurobi-in-C-
+RUN cd $GUROBI/src/build && \
+  make && \
+  mv libgurobi_c++.a ../../lib && \
+  cd /opt
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:$GUROBI/lib
