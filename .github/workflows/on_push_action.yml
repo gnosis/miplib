@@ -4,9 +4,9 @@ on: [push,pull_request]
 
 jobs:
   ubuntu-build-and-test:
-    runs-on: ubuntu-latest
-    container:
-      image: gnosispm/miplib-backends:1.1.0
+    runs:
+      using: docker
+      image: '${{ github.workspace }}/docker/Dockerfile'
     steps:
     - name: Checkout
       uses: actions/checkout@v2.0.0
