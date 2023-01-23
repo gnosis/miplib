@@ -4,8 +4,7 @@ on: [push,pull_request]
 
 jobs:
   ubuntu-build-and-test:
-    runs:
-      using: docker
+    container:
       image: '${{ github.workspace }}/docker/Dockerfile'
     steps:
     - name: Checkout
