@@ -8,7 +8,7 @@
 # Required in order to use fast HSL code
 # Install SCIP solver (from source)
 
-ARG SCIP_VERSION=7.0.3
+ARG SCIP_VERSION=8.0.3
 ARG IPOPT_VERSION=3.14.4
 
 FROM ubuntu:latest as COMPILE

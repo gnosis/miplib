@@ -120,7 +120,7 @@ SCIP_CONS* ScipSolver::as_scip_constr(Constr const& constr)
   }
   else if (e.is_quadratic())
   {
-    SCIP_CALL_EXC(SCIPcreateConsBasicQuadratic(
+    SCIP_CALL_EXC(SCIPcreateConsBasicQuadraticNonlinear(
       p_env,
       &p_constr,
       name.value_or("").c_str(),
