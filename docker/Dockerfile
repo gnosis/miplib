@@ -4,10 +4,6 @@
 # NOTE: only the binary libs are installed (e.g. no python support).
 # NOTE: some of these backends still require an installed license to operate.
 
-
-# Required in order to use fast HSL code
-# Install SCIP solver (from source)
-
 ARG SCIP_VERSION=8.0.3
 ARG IPOPT_VERSION=3.14.4
 
