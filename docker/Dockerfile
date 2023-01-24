@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    wget libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 lp-solve \
+    libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 lp-solve \
     build-essential cmake g++-9 libgmp-dev libblas-dev libbliss-dev zlib1g-dev libgsl-dev libcliquer-dev \
     libreadline-dev git ca-certificates ssh liblpsolve55-dev libgomp1 curl patchelf \
   && rm -rf /var/lib/apt/lists/*
@@ -23,11 +23,13 @@ WORKDIR /opt
  # Install SCIP solver (binaries)
 RUN curl -L https://scip.zib.de/download/release/SCIPOptSuite-8.0.3-Linux-ubuntu.sh --output installer.sh && \
   chmod +x ./installer.sh && \
- ./installer.sh --skip-license
+ ./installer.sh --skip-license && \
+ rm installer.sh
 
 # Install Gurobi solver
-RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz \
-  && tar xzf gurobi9.5.1_linux64.tar.gz
+RUN curl --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz --output gurobi.tar.gz \
+  && tar xzf gurobi.tar.gz \
+  && rm gurobi.tar.gz
 
 ENV GUROBI="/opt/gurobi951/linux64"
 
