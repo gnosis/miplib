@@ -40,4 +40,5 @@ RUN cd $GUROBI/src/build && \
   mv libgurobi_c++.a ../../lib && \
   cd /opt
 
-ENV LD_LIBRARY_PATH=/usr/local/lib:$GUROBI/lib
+ENV LIBRARY_PATH=/usr/local/lib:$GUROBI/lib
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH
