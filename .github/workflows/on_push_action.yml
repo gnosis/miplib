@@ -23,6 +23,6 @@ jobs:
         options: -v ${{ github.workspace }}:/src --platform linux/amd64
         run: |
           cd /src
-          cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+          cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DGUROBI:PATH=$GUROBI
           cmake --build ./build -j
           ./build/test/unit_test
