@@ -7,13 +7,13 @@
 ARG SCIP_VERSION=8.0.3
 ARG IPOPT_VERSION=3.14.4
 
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 lp-solve \
+    libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-all-dev lp-solve \
     build-essential cmake g++-9 libgmp-dev libblas-dev libbliss-dev zlib1g-dev libgsl-dev libcliquer-dev \
     libreadline-dev git ca-certificates ssh liblpsolve55-dev libgomp1 curl patchelf \
   && rm -rf /var/lib/apt/lists/*
@@ -36,7 +36,7 @@ ENV GUROBI="/opt/gurobi951/linux64"
 # Fix ABI incompatibilities of the pre compiled gurobi lib.
 # See https://support.gurobi.com/hc/en-us/articles/360039093112-How-do-I-resolve-undefined-reference-errors-while-linking-Gurobi-in-C-
 RUN cd $GUROBI/src/build && \
-  make && \
+  make -j && \
   mv libgurobi_c++.a ../../lib && \
   cd /opt
 

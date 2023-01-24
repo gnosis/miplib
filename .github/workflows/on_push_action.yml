@@ -20,7 +20,7 @@ jobs:
       uses: addnab/docker-run-action@v3
       with:
         image: miplib:latest
-        options: -v ${{ github.workspace }}:/src
+        options: -v ${{ github.workspace }}:/src --platform linux/amd64
         run: |
           cd /src
           cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
