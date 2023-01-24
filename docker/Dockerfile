@@ -27,7 +27,7 @@ RUN curl -L https://scip.zib.de/download/release/SCIPOptSuite-8.0.3-Linux-ubuntu
  rm installer.sh
 
 # Install Gurobi solver
-RUN curl --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz --output gurobi.tar.gz \
+RUN curl https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz --output gurobi.tar.gz \
   && tar xzf gurobi.tar.gz \
   && rm gurobi.tar.gz
 
