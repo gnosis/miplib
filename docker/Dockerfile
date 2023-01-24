@@ -4,9 +4,6 @@
 # NOTE: only the binary libs are installed (e.g. no python support).
 # NOTE: some of these backends still require an installed license to operate.
 
-ARG SCIP_VERSION=8.0.3
-ARG IPOPT_VERSION=3.14.4
-
 FROM --platform=linux/amd64 ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -21,6 +18,7 @@ RUN apt-get update \
 WORKDIR /opt
 
  # Install SCIP solver (binaries)
+ARG SCIP_VERSION=8.0.3
 RUN curl -L https://scip.zib.de/download/release/SCIPOptSuite-8.0.3-Linux-ubuntu.sh --output installer.sh && \
   chmod +x ./installer.sh && \
  ./installer.sh --skip-license && \
