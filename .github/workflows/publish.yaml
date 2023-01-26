@@ -1,5 +1,8 @@
 name: publish
 on:
+  # Do this once on this PR to see that publishing works properly.
+  # Should be removed afterwards.
+  pull_request:
   push:
     branches: [main]
     tags: [v*]
