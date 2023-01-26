@@ -1,22 +1,21 @@
 name: C/C++ CI
-
-on: [push,pull_request]
-
+on:
+  pull_request:
 jobs:
   ubuntu-build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2.0.0
+    - uses: actions/checkout@v3
+
     - name: Build Container
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: .
         file: "${{ github.workspace }}/docker/Dockerfile"
         push: false
         tags: miplib:latest
 
-    - name: Run the build process with Docker
+    - name: Build and test miplib within container
       uses: addnab/docker-run-action@v3
       with:
         image: miplib:latest
