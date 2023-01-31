@@ -13,12 +13,12 @@ jobs:
         context: .
         file: "${{ github.workspace }}/docker/Dockerfile"
         push: false
-        tags: miplib:latest
+        tags: gnosispm/miplib-backends:latest
 
     - name: Build and test miplib within container
       uses: addnab/docker-run-action@v3
       with:
-        image: miplib:latest
+        image: gnosispm/miplib-backends:latest
         options: -v ${{ github.workspace }}:/src:ro --platform linux/amd64
         run: |
           cmake -DCMAKE_BUILD_TYPE=Release -DGUROBI:PATH=$GUROBI -S /src -B /build
