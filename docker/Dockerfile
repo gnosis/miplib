@@ -7,13 +7,7 @@
 # Required in order to use fast HSL code
 # Install SCIP solver (from source)
 
-ARG SCIP_VERSION=8.0.3
-ARG IPOPT_VERSION=3.14.10
-
 FROM --platform=linux/amd64 ubuntu:20.04 as COMPILE
-
-ARG SCIP_VERSION
-ARG IPOPT_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -37,6 +31,7 @@ RUN git clone https://github.com/coin-or-tools/ThirdParty-HSL.git \
   && make install
 
 # Install IpOpt from source (SCIP dependency)
+ARG IPOPT_VERSION=3.14.10
 RUN cd $WORKDIR
 RUN wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/${IPOPT_VERSION}.tar.gz \
   && tar xzvf ${IPOPT_VERSION}.tar.gz \
@@ -47,6 +42,7 @@ RUN wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/${IPOPT_VER
   && make \
   && make install
 
+ARG SCIP_VERSION=8.0.3
 RUN cd $WORKDIR
 RUN wget https://scip.zib.de/download/release/scipoptsuite-${SCIP_VERSION}.tgz --no-check-certificate  \
   && tar xzf scipoptsuite-${SCIP_VERSION}.tgz \
