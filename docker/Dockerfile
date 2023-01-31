@@ -4,23 +4,16 @@
 # NOTE: only the binary libs are installed (e.g. no python support).
 # NOTE: some of these backends still require an installed license to operate.
 
-
 # Required in order to use fast HSL code
 # Install SCIP solver (from source)
 
-ARG SCIP_VERSION=7.0.3
-ARG IPOPT_VERSION=3.14.4
-
-FROM ubuntu:latest as COMPILE
-
-ARG SCIP_VERSION
-ARG IPOPT_VERSION
+FROM --platform=linux/amd64 ubuntu:20.04 as COMPILE
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends g++ gfortran make cmake ca-certificates wget   \
-  pkg-config libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb2 libboost-program-options1.71 \
+  pkg-config libblas3 libgfortran4 libgsl23 libgslcblas0 liblapack3 libtbb-dev libtbb2 libboost-program-options1.71 \
     build-essential libgmp-dev libblas-dev libbliss-dev zlib1g-dev libgsl-dev libcliquer-dev \
     libreadline-dev liblapack-dev git file \
   && rm -rf /var/lib/apt/lists/*
@@ -38,6 +31,7 @@ RUN git clone https://github.com/coin-or-tools/ThirdParty-HSL.git \
   && make install
 
 # Install IpOpt from source (SCIP dependency)
+ARG IPOPT_VERSION=3.14.10
 RUN cd $WORKDIR
 RUN wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/${IPOPT_VERSION}.tar.gz \
   && tar xzvf ${IPOPT_VERSION}.tar.gz \
@@ -48,19 +42,20 @@ RUN wget https://github.com/coin-or/Ipopt/archive/refs/tags/releases/${IPOPT_VER
   && make \
   && make install
 
+ARG SCIP_VERSION=8.0.3
 RUN cd $WORKDIR
 RUN wget https://scip.zib.de/download/release/scipoptsuite-${SCIP_VERSION}.tgz --no-check-certificate  \
   && tar xzf scipoptsuite-${SCIP_VERSION}.tgz \
   && cd scipoptsuite-${SCIP_VERSION} \
   && mkdir build \
   && cd build \
-  && cmake -DZIMPL=off .. \
+  && cmake -DZIMPL=off -DGCG=off -DUG=off .. \
   && make CXX_FLAGS="-DSOPLEX_WITH_GMP -fPIC" install \
   && cd $WORKDIR
 
 # Runtime image
 
-FROM ubuntu:latest
+FROM --platform=linux/amd64 ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -82,14 +77,15 @@ COPY --from=COMPILE /usr/local/include/ /usr/local/include/
 # ./SCIPOptSuite-7.0.2-Linux-ubuntu.sh --skip-license
 
 # Install Gurobi solver
-RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.0_linux64.tar.gz \
-  && tar xzf gurobi9.5.0_linux64.tar.gz
+RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz \
+  && tar xzf gurobi9.5.1_linux64.tar.gz
 
-ENV GUROBI_DIR="/opt/gurobi950/linux64"
+ENV GUROBI="/opt/gurobi951/linux64"
 
-RUN cd $GUROBI_DIR/src/build && \
+RUN cd $GUROBI/src/build && \
   make && \
   mv libgurobi_c++.a ../../lib && \
   cd /opt
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV LIBRARY_PATH=/usr/local/lib:$GUROBI/lib
+ENV LD_LIBRARY_PATH=$LIBRARY_PATH

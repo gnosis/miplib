@@ -1,0 +1,26 @@
+name: C/C++ CI
+on:
+  pull_request:
+jobs:
+  ubuntu-build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Container
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: "${{ github.workspace }}/docker/Dockerfile"
+        push: false
+        tags: gnosispm/miplib-backends:latest
+
+    - name: Build and test miplib within container
+      uses: addnab/docker-run-action@v3
+      with:
+        image: gnosispm/miplib-backends:latest
+        options: -v ${{ github.workspace }}:/src:ro --platform linux/amd64
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -DGUROBI:PATH=$GUROBI -S /src -B /build
+          cmake --build /build -j
+          /build/test/unit_test
