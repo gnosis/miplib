@@ -80,12 +80,12 @@ COPY --from=COMPILE /usr/local/include/ /usr/local/include/
 RUN wget --no-check-certificate https://packages.gurobi.com/9.5/gurobi9.5.1_linux64.tar.gz \
   && tar xzf gurobi9.5.1_linux64.tar.gz
 
-ENV GUROBI_DIR="/opt/gurobi951/linux64"
+ENV GUROBI="/opt/gurobi951/linux64"
 
 RUN cd $GUROBI_DIR/src/build && \
   make && \
   mv libgurobi_c++.a ../../lib && \
   cd /opt
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
-
+ENV LIBRARY_PATH=/usr/local/lib:$GUROBI/lib
+ENV LD_LIBRARY_PATH=$LIBRARY_PATH
